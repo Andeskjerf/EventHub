@@ -1,2 +1,3 @@
 .gradle
 backend/build
+backend/bin
