@@ -8,6 +8,9 @@ spring:
     show-sql: true
     database-platform: org.hibernate.community.dialect.SQLiteDialect
 
+server:
+  port: 8090
+
 jwt:
   private.key: classpath:key.pem
   public.key: classpath:key.pub
