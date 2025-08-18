@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: EventHub
+  datasource:
+    url: jdbc:sqlite:database.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+
+jwt:
+  private.key: classpath:key.pem
+  public.key: classpath:key.pub

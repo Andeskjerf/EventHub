@@ -1,3 +1,10 @@
 .gradle
 backend/build
 backend/bin
+backend/src/main/resources/database.db
+backend/src/main/resources/key.pem
+backend/src/main/resources/key.pub
+backend/.factorypath
+backend/.classpath
+backend/database.db
+backend/.settings
