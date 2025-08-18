@@ -1,4 +1,5 @@
 .gradle
+.settings
 backend/build
 backend/bin
 backend/src/main/resources/database.db
