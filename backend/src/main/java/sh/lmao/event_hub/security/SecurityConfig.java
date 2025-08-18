@@ -1,23 +1,25 @@
-package sh.lmao.event_hub;
+package sh.lmao.event_hub.security;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -27,8 +29,10 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import sh.lmao.event_hub.security.MyUserDetailService;
+
 @Configuration
-public class RestConfig {
+public class SecurityConfig {
 
     @Value("${jwt.public.key}")
     RSAPublicKey key;
@@ -36,28 +40,43 @@ public class RestConfig {
     @Value("${jwt.private.key}")
     RSAPrivateKey priv;
 
+    @Autowired
+    private MyUserDetailService userDetailService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-                .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
-                .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/**").authenticated().anyRequest()
+                        .authenticated())
+                // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
+                // .httpBasic(Customizer.withDefaults())
+                .csrf((csrf) -> csrf.disable())
+                .httpBasic((httpBasic) -> httpBasic.disable())
                 .oauth2ResourceServer((jwt) -> jwt.jwt(Customizer.withDefaults()))
+                .userDetailsService(userDetailService)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+        // http.addFilterBefore(filter, beforeFilter);
         return http.build();
     }
 
     @Bean
-    UserDetailsService users() {
-        // TODO: use database to store users
-        return new InMemoryUserDetailsManager(
-                User.withUsername("admin")
-                        .password("{noop}admin")
-                        .authorities("app")
-                        .build());
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+                .userDetailsService(userDetailService)
+                .passwordEncoder(passwordEncoder());
+
+        return authenticationManagerBuilder.build();
     }
 
     @Bean
