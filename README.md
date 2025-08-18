@@ -6,13 +6,6 @@ Built with Vue & Java Spring.
 
 ## Getting started
 
-### Setting up database
-
-```shell
-cd backend
-touch src/main/resources/database.db
-```
-
 ### Generating keys used for JWT
 
 ```shell
