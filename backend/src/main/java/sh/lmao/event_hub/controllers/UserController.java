@@ -18,7 +18,7 @@ public class UserController {
 
     @GetMapping("/info")
     public User registerHandler() {
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepo.findByUsername(username).get();
     }
 }
