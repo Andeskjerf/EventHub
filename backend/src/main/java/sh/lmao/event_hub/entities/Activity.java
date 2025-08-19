@@ -1,5 +1,6 @@
 package sh.lmao.event_hub.entities;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
@@ -7,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,16 +28,25 @@ public class Activity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // when the event is taking place, unix timestamp
-    private long eventDate;
+    // the name of the activity, obviously
+    @NotBlank(message = "Name is required")
+    @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters")
+    private String name;
 
-    // when registration should be disabled, as seconds before eventDate
-    private long registerBefore;
+    // when the event is taking place, unix timestamp
+    @Future(message = "Event date must be in the future")
+    private ZonedDateTime eventDate;
+
+    // when registration should be disabled, as hours before eventDate
+    @Size(min = 0, max = 24 * 7, message = "Registration deadline can't be less than 0 or higher than 168 hours")
+    private int registerBefore;
 
     // where the event is taking place
+    @Size(min = 0, max = 100, message = "Location cannot exceed 100 characters")
     private String location;
 
     // where participants should meet up
+    @Size(min = 0, max = 100, message = "Meetup location cannot exceed 100 characters")
     private String meetLocation;
 
     private String description;
