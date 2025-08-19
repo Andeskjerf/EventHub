@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,7 @@ public class Activity {
 
     // when the event is taking place, unix timestamp
     @Future(message = "Event date must be in the future")
+    @NotNull(message = "Event date is required")
     private ZonedDateTime eventDate;
 
     // when registration should be disabled, as hours before eventDate
@@ -52,8 +54,11 @@ public class Activity {
     @Size(min = 0, max = 100, message = "Meetup location cannot exceed 100 characters")
     private String meetLocation;
 
+    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
 
     // 0 for unlimited
+    @Min(value = 0, message = "Max participants cannot be negative")
+    @Max(value = 10000, message = "Max participants cannot exceed 10000")
     private int maxParticipants;
 }
