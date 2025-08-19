@@ -43,12 +43,17 @@ public class SecurityConfig {
     @Autowired
     private MyUserDetailService userDetailService;
 
+    private static final String[] PUBLIC_PATHS = {
+            "/api/auth/**",
+            "/api/activity/all"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/user/**").authenticated().anyRequest()
-                        .authenticated())
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(PUBLIC_PATHS).permitAll()
+                        .anyRequest().authenticated())
                 // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
                 // .httpBasic(Customizer.withDefaults())
                 .csrf((csrf) -> csrf.disable())
