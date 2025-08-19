@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -38,7 +40,8 @@ public class Activity {
     private ZonedDateTime eventDate;
 
     // when registration should be disabled, as hours before eventDate
-    @Size(min = 0, max = 24 * 7, message = "Registration deadline can't be less than 0 or higher than 168 hours")
+    @Min(value = 0, message = "Registration deadline can't be less than 0")
+    @Max(value = 168, message = "Registration deadline can't exceed 168 hours")
     private int registerBefore;
 
     // where the event is taking place
