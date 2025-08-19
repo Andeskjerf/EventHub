@@ -24,15 +24,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Getter
-    @Setter
     private String email;
 
-    @Getter
-    @Setter
     private String username;
 
-    @Getter
-    @Setter
     private String password;
 }
