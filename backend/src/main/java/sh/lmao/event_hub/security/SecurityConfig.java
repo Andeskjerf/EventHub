@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -53,6 +54,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(PUBLIC_PATHS).permitAll()
+                        // FIXME: we should make stuff like the below work somehow with the public paths
+                        // var
+                        .requestMatchers(HttpMethod.POST, "/api/activity/*/participants").permitAll()
                         .anyRequest().authenticated())
                 // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
                 // .httpBasic(Customizer.withDefaults())
