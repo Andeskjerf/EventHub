@@ -2,6 +2,9 @@ package sh.lmao.event_hub.entities;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +35,11 @@ public class Participant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
+    @JsonIgnore
     private Activity activity;
+
+    @Column(name = "activity_id", insertable = false, updatable = false)
+    private UUID activityId;
 
     @NotBlank(message = "Name is required")
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
