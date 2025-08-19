@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.models.LoginCreds;
 import sh.lmao.event_hub.repositories.UserRepo;
@@ -40,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerHandler(
-            @RequestBody User user) {
+            @Valid @RequestBody User user) {
         if (userRepo.findByUsername(user.getUsername()).isPresent()
                 || userRepo.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Collections.singletonMap("error", "user exists"));
