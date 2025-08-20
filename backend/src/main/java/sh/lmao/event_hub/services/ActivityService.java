@@ -47,9 +47,11 @@ public class ActivityService {
 
         // if the interval is not 0, it should be repeated
         if (savedActivity.getRepeatInterval() != 0) {
+            // FIXME: magic values!
+            // if it wasn't obvious, we're getting 3 months as days
             int daysToPopulateInFuture = 3 * 30;
             if (populateFutureInstances(savedActivity, daysToPopulateInFuture).size() == 0) {
-                logger.warn("tried to populate activity instances for '" + savedActivity.getName() + "'"
+                logger.warn("tried to populate activity instances for '" + savedActivity.getName() + "'" + " '"
                         + daysToPopulateInFuture
                         + "' days ahead, but no instances were created");
             }
@@ -68,8 +70,11 @@ public class ActivityService {
         long deltaAsDays = (now.toEpochSecond() - eventDate.toEpochSecond()) / 60 / 60 / 24;
         now = now.plusDays(days - (deltaAsDays % interval));
 
-        Optional<ActivityInstance> foundInstance = activityInstanceRepo.findByEventDate(now);
-        while (foundInstance.isEmpty() && now.toEpochSecond() > eventDate.toEpochSecond()) {
+        while (now.toEpochSecond() > eventDate.toEpochSecond()) {
+            Optional<ActivityInstance> foundInstance = activityInstanceRepo.findByEventDate(now);
+            if (foundInstance.isPresent()) {
+                break;
+            }
             instances.add(createInstance(activity, now));
             now = now.plusDays(-interval);
         }
