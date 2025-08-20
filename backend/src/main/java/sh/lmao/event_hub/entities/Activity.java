@@ -1,8 +1,13 @@
 package sh.lmao.event_hub.entities;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -61,4 +66,15 @@ public class Activity {
     @Min(value = 0, message = "Max participants cannot be negative")
     @Max(value = 10000, message = "Max participants cannot exceed 10000")
     private int maxParticipants;
+
+    // if not 0 or null, repeat every nth day
+    @Max(value = 365, message = "Repeat interval cannot exceed a year / 365 days")
+    private int repeatInterval;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private ZonedDateTime createdAt;
+
+    @LastModifiedDate
+    private ZonedDateTime lastModified;
 }
