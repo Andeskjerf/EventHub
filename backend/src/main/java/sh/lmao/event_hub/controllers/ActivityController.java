@@ -1,9 +1,7 @@
 package sh.lmao.event_hub.controllers;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,54 +17,46 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.Participant;
-import sh.lmao.event_hub.repositories.ActivityRepo;
-import sh.lmao.event_hub.repositories.ParticipantRepo;
+import sh.lmao.event_hub.services.ActivityService;
 
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
 
     @Autowired
-    private ActivityRepo activityRepo;
-
-    @Autowired
-    private ParticipantRepo participantRepo;
+    private ActivityService activityService;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
-        if (activityRepo.findByName(activity.getName()).isPresent()) {
+        try {
+            activity = activityService.createActivity(activity);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("activity", activity));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "activity exists"));
+                    .body(Map.of("error", e));
         }
-
-        activity = activityRepo.save(activity);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("activity", activity));
     }
 
     @PostMapping("/{activityId}/participants")
     public ResponseEntity<Map<String, Object>> addParticipant(
             @PathVariable UUID activityId,
             @Valid @RequestBody Participant participant) {
-        Optional<Activity> activity = activityRepo.findById(activityId);
-        if (activity.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("participant", activityService.addParticipantForActivity(activityId, participant)));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e));
         }
-
-        participant.setActivity(activity.get());
-        participant = participantRepo.save(participant);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("participant", participant));
     }
 
     @GetMapping("/{activityId}/participants")
     public List<Participant> getParticipants(
             @PathVariable UUID activityId) {
-        return participantRepo.findByActivityId(activityId);
+        return activityService.getAllParticipantsForActivity(activityId);
     }
 
     @GetMapping("/all")
     public List<Activity> getAll() {
-        return activityRepo.findAll();
+        return activityService.getAllActivities();
     }
 }

@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+// TODO: we should be using a DTO instead of returning the database entity
 @Entity
 @Table(name = "users")
 @Getter
