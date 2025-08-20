@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sh.lmao.event_hub.entities.Activity;
@@ -47,17 +49,30 @@ public class ActivityService {
 
         // if the interval is not 0, it should be repeated
         if (savedActivity.getRepeatInterval() != 0) {
-            // FIXME: magic values!
-            // if it wasn't obvious, we're getting 3 months as days
-            int daysToPopulateInFuture = 3 * 30;
-            if (populateFutureInstances(savedActivity, daysToPopulateInFuture).size() == 0) {
-                logger.warn("tried to populate activity instances for '" + savedActivity.getName() + "'" + " '"
-                        + daysToPopulateInFuture
-                        + "' days ahead, but no instances were created");
-            }
+            initFuturePopulating(savedActivity);
         }
 
         return savedActivity;
+    }
+
+    @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
+    private void scheduledFutureInstancePopulator() {
+        for (Activity activity : activityRepo.findAll()) {
+            if (activity.getRepeatInterval() == 0) {
+                continue;
+            }
+            initFuturePopulating(activity);
+        }
+    }
+
+    private void initFuturePopulating(Activity activity) {
+        int months = 3;
+        int daysToPopulateInFuture = months * 30;
+        if (populateFutureInstances(activity, daysToPopulateInFuture).size() == 0) {
+            logger.warn("tried to populate activity instances for '" + activity.getName() + "'" + " '"
+                    + daysToPopulateInFuture
+                    + "' days ahead, but no instances were created");
+        }
     }
 
     private List<ActivityInstance> populateFutureInstances(Activity activity, int days) {
