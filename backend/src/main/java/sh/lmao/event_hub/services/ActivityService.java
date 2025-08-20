@@ -107,10 +107,11 @@ public class ActivityService {
 
     }
 
-    public Participant addParticipantForActivity(UUID activityId, Participant participant) throws NotFoundException {
-        Optional<Activity> activity = activityRepo.findById(activityId);
+    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
+            throws NotFoundException {
+        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
         if (activity.isEmpty()) {
-            throw new NotFoundException("no activity found with ID: " + activityId);
+            throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
         }
 
         participant.setActivity(activity.get());

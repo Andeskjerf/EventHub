@@ -48,11 +48,12 @@ public class ActivityController {
 
     @PostMapping("/{activityId}/participants")
     public ResponseEntity<Map<String, Object>> addParticipant(
-            @PathVariable UUID activityId,
+            @PathVariable UUID activityInstanceId,
             @Valid @RequestBody Participant participant) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("participant", activityService.addParticipantForActivity(activityId, participant)));
+                    .body(Map.of("participant",
+                            activityService.addParticipantForActivity(activityInstanceId, participant)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));

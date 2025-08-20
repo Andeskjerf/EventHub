@@ -36,7 +36,7 @@ public class Participant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     @JsonIgnore
-    private Activity activity;
+    private ActivityInstance activity;
 
     @Column(name = "activity_id", insertable = false, updatable = false)
     private UUID activityId;
