@@ -29,8 +29,8 @@ public class ActivityController {
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
         try {
-            activity = activityService.createActivity(activity);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("activity", activity));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("activity", activityService.createActivity(activity)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", e));
