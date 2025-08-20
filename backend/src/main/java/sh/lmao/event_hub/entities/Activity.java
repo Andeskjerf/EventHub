@@ -1,17 +1,21 @@
 package sh.lmao.event_hub.entities;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
@@ -70,6 +74,9 @@ public class Activity {
     // if not 0 or null, repeat every nth day
     @Max(value = 365, message = "Repeat interval cannot exceed a year / 365 days")
     private int repeatInterval;
+
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ActivityInstance> instances = new ArrayList<>();
 
     @CreatedDate
     @Column(updatable = false)
