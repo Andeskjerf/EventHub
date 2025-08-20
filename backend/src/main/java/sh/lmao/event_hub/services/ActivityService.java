@@ -43,13 +43,13 @@ public class ActivityService {
         Activity savedActivity = activityRepo.save(activity);
 
         // there will always be at least one instance at the initial date
-        createInstance(activity, activity.getEventDate());
+        createInstance(savedActivity, savedActivity.getEventDate());
 
         // if the interval is not 0, it should be repeated
-        if (activity.getRepeatInterval() != 0) {
+        if (savedActivity.getRepeatInterval() != 0) {
             int daysToPopulateInFuture = 3 * 30;
-            if (populateFutureInstances(activity, daysToPopulateInFuture).size() == 0) {
-                logger.warn("tried to populate activity instances for '" + activity.getName() + "'"
+            if (populateFutureInstances(savedActivity, daysToPopulateInFuture).size() == 0) {
+                logger.warn("tried to populate activity instances for '" + savedActivity.getName() + "'"
                         + daysToPopulateInFuture
                         + "' days ahead, but no instances were created");
             }
