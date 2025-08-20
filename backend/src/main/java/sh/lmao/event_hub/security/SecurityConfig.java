@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -43,12 +44,20 @@ public class SecurityConfig {
     @Autowired
     private MyUserDetailService userDetailService;
 
+    private static final String[] PUBLIC_PATHS = {
+            "/api/auth/**",
+            "/api/activity/all"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/user/**").authenticated().anyRequest()
-                        .authenticated())
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(PUBLIC_PATHS).permitAll()
+                        // FIXME: we should make stuff like the below work somehow with the public paths
+                        // var
+                        .requestMatchers(HttpMethod.POST, "/api/activity/*/participants").permitAll()
+                        .anyRequest().authenticated())
                 // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
                 // .httpBasic(Customizer.withDefaults())
                 .csrf((csrf) -> csrf.disable())
