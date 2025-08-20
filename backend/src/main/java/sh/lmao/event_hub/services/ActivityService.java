@@ -47,10 +47,7 @@ public class ActivityService {
         // there will always be at least one instance at the initial date
         createInstance(savedActivity, savedActivity.getEventDate());
 
-        // if the interval is not 0, it should be repeated
-        if (savedActivity.getRepeatInterval() != 0) {
-            initFuturePopulating(savedActivity);
-        }
+        initFuturePopulating(savedActivity);
 
         return savedActivity;
     }
@@ -58,14 +55,15 @@ public class ActivityService {
     @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
     private void scheduledFutureInstancePopulator() {
         for (Activity activity : activityRepo.findAll()) {
-            if (activity.getRepeatInterval() == 0) {
-                continue;
-            }
             initFuturePopulating(activity);
         }
     }
 
     private void initFuturePopulating(Activity activity) {
+        // if the interval is not 0, it should be repeated
+        if (activity.getRepeatInterval() == 0)
+            return;
+
         int months = 3;
         int daysToPopulateInFuture = months * 30;
         if (populateFutureInstances(activity, daysToPopulateInFuture).size() == 0) {
