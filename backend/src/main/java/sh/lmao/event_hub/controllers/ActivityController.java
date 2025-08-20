@@ -54,7 +54,8 @@ public class ActivityController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("participant", activityService.addParticipantForActivity(activityId, participant)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "could not find activity to add participants to"));
         }
     }
 
