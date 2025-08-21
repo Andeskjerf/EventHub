@@ -1,12 +1,14 @@
+import { getToken, getUsername } from "@/services/storage";
+
 export interface IUserState {
-	id: number | null;
+	username: string | null;
 	token: string | null;
 }
 
 export const getInitialUserState = (): IUserState => {
 	return {
-		id: 1,
-		token: "some-token-the-backend-uses-to-auth",
+		username: getUsername(),
+		token: getToken(),
 	};
 };
 
