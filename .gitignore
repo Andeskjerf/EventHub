@@ -9,3 +9,4 @@ backend/.factorypath
 backend/.classpath
 backend/database.db
 backend/.settings
+frontend/node_modules
