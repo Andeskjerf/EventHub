@@ -44,21 +44,27 @@ public class SecurityConfig {
     @Autowired
     private MyUserDetailService userDetailService;
 
-    private static final String[] PUBLIC_PATHS = {
+    private static final String[] PUBLIC_ALL_METHODS = {
             "/api/auth/**",
-            "/api/activity/all"
+    };
+
+    private static final String[] PUBLIC_GET_ONLY = {
+            "/api/activity/all",
+            "/api/activity/*/instances",
+    };
+
+    private static final String[] PUBLIC_POST_ONLY = {
+            "/api/activity/*/participants",
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(PUBLIC_PATHS).permitAll()
-                        // FIXME: we should make stuff like the below work somehow with the public paths
-                        // var
-                        .requestMatchers(HttpMethod.POST, "/api/activity/*/participants").permitAll()
-                        .anyRequest().authenticated())
-                // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
+                        .requestMatchers(PUBLIC_ALL_METHODS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ONLY).permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ONLY).permitAll()
+                        .anyRequest().authenticated()) // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
                 // .httpBasic(Customizer.withDefaults())
                 .csrf((csrf) -> csrf.disable())
                 .httpBasic((httpBasic) -> httpBasic.disable())

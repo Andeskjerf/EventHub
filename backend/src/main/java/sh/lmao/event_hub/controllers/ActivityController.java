@@ -1,7 +1,9 @@
 package sh.lmao.event_hub.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.LoggerFactory;
@@ -19,8 +21,10 @@ import org.slf4j.Logger;
 
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.Activity;
+import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
+import sh.lmao.event_hub.services.ActivityInstanceService;
 import sh.lmao.event_hub.services.ActivityService;
 
 @RestController
@@ -30,6 +34,9 @@ public class ActivityController {
 
     @Autowired
     private ActivityService activityService;
+
+    @Autowired
+    private ActivityInstanceService activityInstanceService;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
@@ -48,11 +55,12 @@ public class ActivityController {
 
     @PostMapping("/{activityId}/participants")
     public ResponseEntity<Map<String, Object>> addParticipant(
-            @PathVariable UUID activityId,
+            @PathVariable UUID activityInstanceId,
             @Valid @RequestBody Participant participant) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("participant", activityService.addParticipantForActivity(activityId, participant)));
+                    .body(Map.of("participant",
+                            activityInstanceService.addParticipantForActivity(activityInstanceId, participant)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));
@@ -62,7 +70,22 @@ public class ActivityController {
     @GetMapping("/{activityId}/participants")
     public List<Participant> getParticipants(
             @PathVariable UUID activityId) {
-        return activityService.getAllParticipantsForActivity(activityId);
+        return activityInstanceService.getAllParticipantsForActivity(activityId);
+    }
+
+    @GetMapping("/{activityId}/instances")
+    public List<ActivityInstance> getActivityInstances(
+            @PathVariable UUID activityId) {
+        // FIXME: we shouldn't have logic like this in the controller
+        // adding activityService to activityInstanceService would cause a circular
+        // dependency
+        // for now, just do it like this
+        Optional<Activity> activity = activityService.getActivity(activityId);
+        if (activity.isEmpty()) {
+            logger.warn("no activity found with given ID, '{}'", activityId);
+            return new ArrayList<>();
+        }
+        return activityInstanceService.getAllInstancesForActivity(activity.get());
     }
 
     @GetMapping("/all")
