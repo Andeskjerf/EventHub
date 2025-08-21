@@ -29,13 +29,10 @@ public class ActivityService {
     private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
 
     @Autowired
+    private ActivityInstanceService activityInstanceService;
+
+    @Autowired
     private ActivityRepo activityRepo;
-
-    @Autowired
-    private ActivityInstanceRepo activityInstanceRepo;
-
-    @Autowired
-    private ParticipantRepo participantRepo;
 
     public Activity createActivity(Activity activity) throws AlreadyExistsException {
         if (activityRepo.findByName(activity.getName()).isPresent()) {
@@ -45,79 +42,11 @@ public class ActivityService {
         Activity savedActivity = activityRepo.save(activity);
 
         // there will always be at least one instance at the initial date
-        createInstance(savedActivity, savedActivity.getEventDate());
-
-        initFuturePopulating(savedActivity);
+        activityInstanceService.createInstance(savedActivity, savedActivity.getEventDate());
+        // ensure there are instances into the future
+        activityInstanceService.initFuturePopulating(savedActivity);
 
         return savedActivity;
-    }
-
-    @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
-    private void scheduledFutureInstancePopulator() {
-        for (Activity activity : activityRepo.findAll()) {
-            initFuturePopulating(activity);
-        }
-    }
-
-    private void initFuturePopulating(Activity activity) {
-        // if the interval is not 0, it should be repeated
-        if (activity.getRepeatInterval() == 0)
-            return;
-
-        int months = 3;
-        int daysToPopulateInFuture = months * 30;
-        if (populateFutureInstances(activity, daysToPopulateInFuture).size() == 0) {
-            logger.warn("tried to populate activity instances for '" + activity.getName() + "'" + " '"
-                    + daysToPopulateInFuture
-                    + "' days ahead, but no instances were created");
-        }
-    }
-
-    private List<ActivityInstance> populateFutureInstances(Activity activity, int days) {
-        List<ActivityInstance> instances = new ArrayList<>();
-
-        ZonedDateTime eventDate = activity.getEventDate();
-        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.systemDefault());
-        int interval = activity.getRepeatInterval();
-
-        long deltaAsDays = (now.toEpochSecond() - eventDate.toEpochSecond()) / 60 / 60 / 24;
-        now = now.plusDays(days - (deltaAsDays % interval));
-
-        while (now.toEpochSecond() > eventDate.toEpochSecond()) {
-            Optional<ActivityInstance> foundInstance = activityInstanceRepo.findByEventDate(now);
-            if (foundInstance.isPresent()) {
-                break;
-            }
-            instances.add(createInstance(activity, now));
-            now = now.plusDays(-interval);
-        }
-
-        return instances;
-    }
-
-    // FIXME: hmm... should this be in the activity service? would the "java spring
-    // way" have its own ActivityInstanceService?
-    private ActivityInstance createInstance(Activity activity, ZonedDateTime eventDate) {
-        ActivityInstance instance = new ActivityInstance();
-        instance.setActivity(activity);
-        instance.setEventDate(eventDate);
-        return activityInstanceRepo.save(instance);
-
-    }
-
-    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
-            throws NotFoundException {
-        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
-        if (activity.isEmpty()) {
-            throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
-        }
-
-        participant.setActivity(activity.get());
-        return participantRepo.save(participant);
-    }
-
-    public List<Participant> getAllParticipantsForActivity(UUID activityId) {
-        return participantRepo.findByActivityId(activityId);
     }
 
     public List<Activity> getAllActivities() {

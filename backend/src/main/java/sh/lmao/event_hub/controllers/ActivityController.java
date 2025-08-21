@@ -21,6 +21,7 @@ import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
+import sh.lmao.event_hub.services.ActivityInstanceService;
 import sh.lmao.event_hub.services.ActivityService;
 
 @RestController
@@ -30,6 +31,9 @@ public class ActivityController {
 
     @Autowired
     private ActivityService activityService;
+
+    @Autowired
+    private ActivityInstanceService activityInstanceService;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
