@@ -57,7 +57,7 @@ public class ActivityController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("participant",
-                            activityService.addParticipantForActivity(activityInstanceId, participant)));
+                            activityInstanceService.addParticipantForActivity(activityInstanceId, participant)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));
@@ -67,7 +67,7 @@ public class ActivityController {
     @GetMapping("/{activityId}/participants")
     public List<Participant> getParticipants(
             @PathVariable UUID activityId) {
-        return activityService.getAllParticipantsForActivity(activityId);
+        return activityInstanceService.getAllParticipantsForActivity(activityId);
     }
 
     @GetMapping("/all")
