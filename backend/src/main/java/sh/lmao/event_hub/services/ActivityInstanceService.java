@@ -100,4 +100,8 @@ public class ActivityInstanceService {
     public List<Participant> getAllParticipantsForActivity(UUID activityId) {
         return participantRepo.findByActivityId(activityId);
     }
+
+    public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
+        return activityInstanceRepo.findByActivityOrderByEventDate(activity);
+    }
 }

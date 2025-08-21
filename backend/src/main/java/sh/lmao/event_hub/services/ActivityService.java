@@ -49,6 +49,10 @@ public class ActivityService {
         return savedActivity;
     }
 
+    public Optional<Activity> getActivity(UUID id) {
+        return activityRepo.findById(id);
+    }
+
     public List<Activity> getAllActivities() {
         return activityRepo.findAll();
     }
