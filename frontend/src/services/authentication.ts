@@ -4,25 +4,11 @@ import { BACKEND_URL } from "@/consts/backend";
 import type { LoginCreds } from "@/models/login_creds";
 import type { RegisterRequest } from "@/models/register_request";
 import { userModule } from "@/stores/auth/module";
-import {
-	clearAuth,
-	getToken,
-	STORAGE_KEYS,
-	setToken,
-	setUsername,
-} from "./storage";
+import { clearAuth, STORAGE_KEYS, setUsername } from "./storage";
 
 const API_ENDPOINT_BASE: string = "/api/auth";
 
 const router = useRouter();
-
-axios.interceptors.request.use((config) => {
-	const token = getToken();
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
-	return config;
-});
 
 axios.interceptors.response.use(
 	(response) => response,
@@ -53,11 +39,10 @@ export async function login(
 			return null;
 		});
 
-	if (response?.data?.[STORAGE_KEYS.TOKEN]) {
-		setToken(response.data[STORAGE_KEYS.TOKEN]);
+	if (response?.data?.[STORAGE_KEYS.USERNAME]) {
 		setUsername(username);
 		userModule.actions.updateAuthState();
-		return response.data[STORAGE_KEYS.TOKEN];
+		return response.data[STORAGE_KEYS.USERNAME];
 	}
 }
 
@@ -80,10 +65,9 @@ export async function register(
 			return null;
 		});
 
-	if (response?.data?.[STORAGE_KEYS.TOKEN]) {
-		setToken(response.data[STORAGE_KEYS.TOKEN]);
+	if (response?.data?.[STORAGE_KEYS.USERNAME]) {
 		setUsername(username);
 		userModule.actions.updateAuthState();
-		return response.data[STORAGE_KEYS.TOKEN];
+		return response.data[STORAGE_KEYS.USERNAME];
 	}
 }
