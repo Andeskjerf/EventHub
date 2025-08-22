@@ -2,6 +2,9 @@
 import type { CreateActivityRequest } from '@/models/create_activity_request';
 import { activityService } from '@/services/activity';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const name = ref("Golf")
 const eventDate = ref("2025-08-29T09:00:00")
@@ -11,6 +14,8 @@ const meetupLocation = ref("Golfklubb parkering")
 const description = ref("Hyggelig golf treff med mulighet for spill på bane og range")
 const maxParticipants = ref(100)
 const repeatInterval = ref(7)
+
+const error = ref("")
 
 async function submitActivity(e: Event) {
   e.preventDefault()
@@ -25,12 +30,18 @@ async function submitActivity(e: Event) {
     repeatInterval: repeatInterval.value,
   }
 
-  await activityService.createActivity(activity)
+  const result = await activityService.createActivity(activity)
+  if (result.success) {
+    router.replace("/")
+  } else {
+    error.value = result.message
+  }
 }
 </script>
 
 <template>
   <h1>Create activity</h1>
+  <h3 v-if="error.length > 0">ERROR: {{ error }}</h3>
   <form @submit="submitActivity">
     <input v-model="name" placeholder="name" />
     <input v-model="eventDate" placeholder="dato" type="datetime-local" />
