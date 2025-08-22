@@ -50,12 +50,19 @@ public class AuthService {
         return jwtUtil.generateToken(creds.getUsername());
     }
 
+    public Cookie logout() throws AuthenticationException {
+        // we log the user out by giving them an expired jwt-token cookie
+        // in the future, we might want session & refresh tokens
+        // when we get there, this should also invalidate the refresh token
+        return createCookie("");
+    }
+
     public Cookie createCookie(String token) {
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setSecure(false); // FIXME: set to true when in production!
-        jwtCookie.setMaxAge((int) JWTUtil.tokenExpiration);
+        jwtCookie.setMaxAge(token.length() != 0 ? (int) JWTUtil.tokenExpiration : 0);
         return jwtCookie;
     }
 }

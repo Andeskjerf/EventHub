@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useRouter } from "vue-router";
 import { BACKEND_URL } from "@/consts/backend";
 import type { LoginCreds } from "@/models/login_creds";
 import type { RegisterRequest } from "@/models/register_request";
@@ -8,15 +7,13 @@ import { clearAuth, STORAGE_KEYS, setUsername } from "./storage";
 
 const API_ENDPOINT_BASE: string = "/api/auth";
 
-const router = useRouter();
-
+axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response?.status === 401) {
 			clearAuth();
 			userModule.actions.updateAuthState();
-			router.push("/auth");
 		}
 		return Promise.reject(error); // Re-throw the error
 	},
@@ -35,7 +32,7 @@ export async function login(
 		.post(BACKEND_URL + API_ENDPOINT_BASE + "/login", creds)
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
-			console.log(e);
+			console.log(`E: failed to login: ${e}`);
 			return null;
 		});
 
@@ -61,7 +58,7 @@ export async function register(
 		.post(BACKEND_URL + API_ENDPOINT_BASE + "/register", creds)
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
-			console.log(e);
+			console.log(`E: failed to register: ${e}`);
 			return null;
 		});
 
@@ -70,4 +67,14 @@ export async function register(
 		userModule.actions.updateAuthState();
 		return response.data[STORAGE_KEYS.USERNAME];
 	}
+}
+
+export async function logout() {
+	await axios.get(BACKEND_URL + API_ENDPOINT_BASE + "/logout").catch((e) => {
+		// TODO: need to handle this, notify the user or whatever
+		console.log(`E: failed to logout: ${e}`);
+	});
+
+	clearAuth();
+	userModule.actions.updateAuthState();
 }

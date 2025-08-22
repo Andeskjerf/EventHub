@@ -19,10 +19,8 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         if (request.getHeader("Authorization") == null) {
-            // Extract JWT from cookie
             String jwt = extractJwtFromCookie(request);
             if (jwt != null) {
-                // Wrap the request to add Authorization header
                 HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request) {
                     @Override
                     public String getHeader(String name) {
