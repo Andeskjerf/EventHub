@@ -32,7 +32,7 @@ public class AuthController {
             response.addCookie(authService.createCookie(token));
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "registration successful"));
+                    .body(Map.of("message", "registration successful", "username", user.getUsername()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "user exists"));
         }
@@ -45,7 +45,7 @@ public class AuthController {
             String token = authService.loginUser(body);
             response.addCookie(authService.createCookie(token));
 
-            return Map.of("message", "login successful");
+            return Map.of("message", "login successful", "username", body.getUsername());
         } catch (AuthenticationException authExc) {
             throw new RuntimeException("invalid username/password");
         }
