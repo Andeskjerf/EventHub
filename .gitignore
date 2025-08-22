@@ -11,3 +11,4 @@ backend/database.db
 backend/.settings
 frontend/node_modules
 frontend/.vite/deps
+frontend/vite.config.ts.js
