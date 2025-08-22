@@ -1,6 +1,5 @@
 package sh.lmao.event_hub.controllers;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.models.LoginCreds;
@@ -26,20 +26,26 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerHandler(
-            @Valid @RequestBody User user) {
+            @Valid @RequestBody User user, HttpServletResponse response) {
         try {
+            String token = authService.registerUser(user);
+            response.addCookie(authService.createCookie(token));
+
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Collections.singletonMap("jwt-token", authService.registerUser(user)));
+                    .body(Map.of("message", "registration successful"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Collections.singletonMap("error", "user exists"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "user exists"));
         }
     }
 
     @PostMapping("/login")
     public Map<String, Object> loginHandler(
-            @RequestBody LoginCreds body) {
+            @RequestBody LoginCreds body, HttpServletResponse response) {
         try {
-            return Collections.singletonMap("jwt-token", authService.loginUser(body));
+            String token = authService.loginUser(body);
+            response.addCookie(authService.createCookie(token));
+
+            return Map.of("message", "login successful");
         } catch (AuthenticationException authExc) {
             throw new RuntimeException("invalid username/password");
         }

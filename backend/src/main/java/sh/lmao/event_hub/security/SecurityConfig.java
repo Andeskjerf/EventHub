@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,6 +35,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import sh.lmao.event_hub.filters.JwtCookieAuthenticationFilter;
 import sh.lmao.event_hub.security.MyUserDetailService;
 
 @Configuration
@@ -47,6 +49,9 @@ public class SecurityConfig {
 
     @Autowired
     private MyUserDetailService userDetailService;
+
+    @Autowired
+    private JwtCookieAuthenticationFilter jwtCookieAuthenticationFilter;
 
     private static final String[] PUBLIC_ALL_METHODS = {
             "/api/auth/**",
@@ -76,6 +81,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer((jwt) -> jwt.jwt(Customizer.withDefaults()))
                 .userDetailsService(userDetailService)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtCookieAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));

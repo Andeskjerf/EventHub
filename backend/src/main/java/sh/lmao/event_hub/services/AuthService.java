@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.Cookie;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
 import sh.lmao.event_hub.models.LoginCreds;
@@ -47,5 +48,14 @@ public class AuthService {
         authenticationManager.authenticate(authInputToken);
 
         return jwtUtil.generateToken(creds.getUsername());
+    }
+
+    public Cookie createCookie(String token) {
+        Cookie jwtCookie = new Cookie("jwt-token", token);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setSecure(false); // FIXME: set to true when in production!
+        jwtCookie.setMaxAge((int) JWTUtil.tokenExpiration);
+        return jwtCookie;
     }
 }
