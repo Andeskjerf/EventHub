@@ -72,7 +72,7 @@ public class ActivityController {
         }
     }
 
-    @PostMapping("/{activityId}/participants")
+    @PostMapping("/{activityInstanceId}/participants")
     public ResponseEntity<Map<String, Object>> addParticipant(
             @PathVariable UUID activityInstanceId,
             @Valid @RequestBody Participant participant) {
