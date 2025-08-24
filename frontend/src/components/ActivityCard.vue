@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type ActivityInstance } from '@/models/activity_instance';
+import { activityUtils } from '@/utils/activity_utils';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
@@ -11,36 +12,17 @@ const { activity } = defineProps<{
 function clickHandler() {
   router.push(`/activities/${activity.instanceId}`)
 }
-
-function formatParticipationCount(): string {
-  if (activity.maxParticipants == 0) {
-    return `${activity.participants} deltakere`
-  }
-  return `${activity.participants} / ${activity.maxParticipants} deltakere`
-}
-
-function formatEventTime(eventDate: string): string {
-  const date = new Date(eventDate)
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
-}
-
-function formatEventDate(eventDate: string): string {
-  const date = new Date(eventDate)
-  const weekday = date.toLocaleDateString('nb-NO', { weekday: 'long' })
-  const month = date.toLocaleDateString('nb-NO', { month: 'long' })
-  return `${weekday}, ${date.getDate()} ${month}`
-}
 </script>
 
 <template>
   <div @click="clickHandler" class="card no-select" id="container">
     <div class="flex space-between" id="header">
       <div id="activityName">{{ activity.name }}</div>
-      <div id="participantCount">{{ formatParticipationCount() }}</div>
+      <div id="participantCount">{{ activityUtils.formatParticipationCount(activity) }}</div>
     </div>
     <div class="flex space-between" id="body">
-      <div>{{ formatEventTime(activity.eventDate) }}</div>
-      <div>{{ formatEventDate(activity.eventDate) }}</div>
+      <div>{{ activityUtils.formatEventTime(activity.eventDate) }}</div>
+      <div>{{ activityUtils.formatEventDate(activity.eventDate) }}</div>
     </div>
   </div>
 </template>

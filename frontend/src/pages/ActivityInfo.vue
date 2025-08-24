@@ -25,7 +25,9 @@ onMounted(async () => {
   <h1 v-if="loading"></h1>
   <div v-else id="container">
     <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
-    <h1>{{ activity.name }}</h1>
+    <div>
+      <div>{{ activity.name }}</div>
+    </div>
   </div>
 </template>
 
