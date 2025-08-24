@@ -52,4 +52,12 @@ export const activityService = {
 		);
 		console.log(response);
 	},
+
+	async getParticipants(instanceId: string) {
+		const response = await apiClient.get(
+			`/activity/${instanceId}/participants`,
+		);
+
+		return response.data;
+	},
 };

@@ -5,11 +5,14 @@ import LabelValue from '@/components/LabelValue.vue';
 import { activityService } from '@/services/activity';
 import { activityUtils } from '@/utils/activity_utils';
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { userModule } from '@/stores/auth/module';
 
 const route = useRoute()
+const router = useRouter()
 
 const activity = ref()
+const participants = ref([])
 const error = ref("")
 const loading = ref(true)
 
@@ -17,16 +20,29 @@ const name = ref("");
 const phone = ref("");
 
 onMounted(async () => {
+  await getActivityInfo()
+  await getParticipantInfo()
+  loading.value = false
+})
+
+async function getActivityInfo() {
   const response = await activityService.getActivityInfo(route.params["id"])
   if (response.success) {
     activity.value = response.data.activity as ActivityInstance
   } else {
     error.value = response.message
   }
-  loading.value = false
-})
+}
 
-function submitHandler(e: Event) {
+async function getParticipantInfo() {
+  if (!userModule.state.isAuthenticated) {
+    return
+  }
+
+  participants.value = await activityService.getParticipants(activity.value.instanceId);
+}
+
+async function submitHandler(e: Event) {
   e.preventDefault()
   const participant: CreateParticipant = {
     activityId: activity.value.instanceId,
@@ -34,7 +50,8 @@ function submitHandler(e: Event) {
     phoneNumber: phone.value,
   }
 
-  activityService.registerParticipant(participant)
+  await activityService.registerParticipant(participant)
+  router.push("/")
 }
 </script>
 
@@ -66,6 +83,13 @@ function submitHandler(e: Event) {
       </div>
       <button :disabled="name.length == 0">Meld meg på</button>
     </form>
+    <div v-if="participants.length > 0">
+      <h2 id="participantsTitle">Påmeldte</h2>
+      <div class="flex space-between" v-for="participant in participants">
+        <div>{{ participant.name }}</div>
+        <div>{{ participant.phoneNumber }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -104,6 +128,10 @@ function submitHandler(e: Event) {
 
 #inputs>div {
   display: grid;
+}
+
+#participantsTitle {
+  padding-bottom: 12px;
 }
 
 .h-center {
