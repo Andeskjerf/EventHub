@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import sh.lmao.event_hub.dto.mappers.ActivityMapper;
+import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
@@ -44,6 +46,10 @@ public class ActivityInstanceService {
         return activityInstanceRepo.save(instance);
     }
 
+    public Optional<ActivityInstance> getInstance(UUID activityInstanceId) {
+        return activityInstanceRepo.findById(activityInstanceId);
+    }
+
     @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
     private void scheduledFutureInstancePopulator() {
         for (Activity activity : activityRepo.findAll()) {
@@ -52,7 +58,7 @@ public class ActivityInstanceService {
     }
 
     public void initFuturePopulating(Activity activity) {
-        // if the repeat interval is null, we don't want to repeat the activity
+        // if the repeat interval is zero, we don't want to repeat the activity
         if (activity.getRepeatInterval() == 0)
             return;
 
@@ -95,10 +101,6 @@ public class ActivityInstanceService {
 
         participant.setActivityInstance(activity.get());
         return participantRepo.save(participant);
-    }
-
-    public List<Participant> getAllParticipantsForActivity(UUID activityId) {
-        return participantRepo.findByActivityId(activityId);
     }
 
     public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {

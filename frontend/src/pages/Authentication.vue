@@ -32,14 +32,14 @@ async function handleRegister(event: Event) {
   <h1>Authentication</h1>
   <button @click="showLogin = !showLogin">{{ showLogin ? "Show register" : "Show login" }}</button>
   <form @submit="handleLogin" v-if="showLogin" id="loginForm">
-    <input v-model="username" id="usernameLogin" placeholder="username" />
-    <input v-model="password" id="passwordLogin" placeholder="password" />
+    <input v-model="username" placeholder="username" />
+    <input v-model="password" placeholder="password" />
     <button>Submit</button>
   </form>
   <form @submit="handleRegister" v-else id="registerForm">
     <input v-model="email" id="email" placeholder="email" />
-    <input v-model="username" id="usernameRegister" placeholder="username" />
-    <input v-model="password" id="passwordRegister" placeholder="password" />
+    <input v-model="username" placeholder="username" />
+    <input v-model="password" placeholder="password" />
     <button type="submit">Submit</button>
   </form>
 </template>

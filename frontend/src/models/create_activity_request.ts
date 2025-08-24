@@ -3,7 +3,7 @@ export interface CreateActivityRequest {
 	eventDate: string;
 	registerBefore: number;
 	location: string;
-	meetupLocation: string;
+	meetLocation: string;
 	description: string;
 	maxParticipants: number;
 	repeatInterval: number;

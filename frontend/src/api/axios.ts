@@ -18,6 +18,6 @@ apiClient.interceptors.response.use(
 			clearAuth();
 			userModule.actions.updateAuthState();
 		}
-		return Promise.reject(error); // Re-throw the error
+		return Promise.reject(error);
 	},
 );

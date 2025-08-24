@@ -35,6 +35,9 @@ public class Activity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // determines if the activity is "deleted" or not
+    private boolean active = true;
+
     // the name of the activity, obviously
     @NotBlank(message = "Name is required")
     @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters")

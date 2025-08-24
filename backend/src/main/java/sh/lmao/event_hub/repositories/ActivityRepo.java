@@ -1,5 +1,6 @@
 package sh.lmao.event_hub.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import sh.lmao.event_hub.entities.Activity;
 @Repository
 public interface ActivityRepo extends JpaRepository<Activity, UUID> {
     Optional<Activity> findByName(String name);
+
+    List<Activity> findAllByActive(boolean active);
 }
