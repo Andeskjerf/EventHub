@@ -35,6 +35,8 @@ public class ActivityInstanceDTO {
 
     private String description;
 
+    private int participants;
+
     private int maxParticipants;
 
     private int repeatInterval;

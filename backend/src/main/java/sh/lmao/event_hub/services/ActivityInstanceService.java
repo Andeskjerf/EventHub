@@ -134,7 +134,8 @@ public class ActivityInstanceService {
             Optional<ActivityInstance> instance = activityInstanceRepo
                     .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
             if (instance.isPresent()) {
-                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get()));
+                List<Participant> participants = participantRepo.findByActivityId(instance.get().getId());
+                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get(), participants.size()));
             }
         }
 

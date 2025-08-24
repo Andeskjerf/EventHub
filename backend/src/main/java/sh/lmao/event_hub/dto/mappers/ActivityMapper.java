@@ -11,7 +11,8 @@ import sh.lmao.event_hub.entities.ActivityInstance;
 @Component
 public class ActivityMapper {
 
-    public ActivityInstanceDTO toDashboardInstanceDto(Activity activity, ActivityInstance instance) {
+    public ActivityInstanceDTO toDashboardInstanceDto(Activity activity, ActivityInstance instance,
+            int participantCount) {
         ActivityInstanceDTO dto = new ActivityInstanceDTO();
         dto.setActivityId(activity.getId());
         dto.setInstanceId(instance.getId());
@@ -23,6 +24,7 @@ public class ActivityMapper {
         dto.setDescription(activity.getDescription());
         dto.setMaxParticipants(activity.getMaxParticipants());
         dto.setRepeatInterval(activity.getRepeatInterval());
+        dto.setParticipants(participantCount);
         return dto;
     }
 }

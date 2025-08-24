@@ -7,6 +7,7 @@ export interface ActivityInstance {
 	location: string;
 	meetLocation: string;
 	description?: string;
+	participants: number;
 	maxParticipants: number;
 	repeatInterval: number;
 }
