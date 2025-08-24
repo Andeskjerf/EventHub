@@ -38,6 +38,7 @@ export const activityService = {
 		}
 	},
 
+	// TODO: handle errors
 	async getNextInstanceOfAllActiveActivities(): Promise<
 		Array<ActivityInstance>
 	> {
@@ -45,6 +46,7 @@ export const activityService = {
 		return response.data;
 	},
 
+	// TODO: handle errors
 	async registerParticipant(participant: CreateParticipant) {
 		const response = await apiClient.post(
 			`/activity/${participant.activityId}/participants`,
@@ -53,6 +55,7 @@ export const activityService = {
 		console.log(response);
 	},
 
+	// TODO: handle errors
 	async getParticipants(instanceId: string) {
 		const response = await apiClient.get(
 			`/activity/${instanceId}/participants`,
