@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/axios";
 import type { ActivityInstance } from "@/models/activity_instance";
 import type { CreateActivityRequest } from "@/models/create_activity_request";
+import type { CreateParticipant } from "@/models/create_participant";
 
 export const activityService = {
 	async createActivity(activity: CreateActivityRequest) {
@@ -42,5 +43,13 @@ export const activityService = {
 	> {
 		const response = await apiClient.get("/activity/next-active");
 		return response.data;
+	},
+
+	async registerParticipant(participant: CreateParticipant) {
+		const response = await apiClient.post(
+			`/activity/${participant.activityId}/participants`,
+			participant,
+		);
+		console.log(response);
 	},
 };
