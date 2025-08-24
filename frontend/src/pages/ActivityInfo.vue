@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ActivityInstance } from '@/models/activity_instance';
 import { activityService } from '@/services/activity';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -6,10 +7,16 @@ import { useRoute } from 'vue-router';
 const route = useRoute()
 
 const activity = ref()
+const error = ref("")
 const loading = ref(true)
 
 onMounted(async () => {
-  activity.value = activityService.getActivityInfo(route.params["id"])
+  const response = await activityService.getActivityInfo(route.params["id"])
+  if (response.success) {
+    activity.value = response.data.activity as ActivityInstance
+  } else {
+    error.value = response.message
+  }
   loading.value = false
 })
 </script>
@@ -17,7 +24,8 @@ onMounted(async () => {
 <template>
   <h1 v-if="loading"></h1>
   <div v-else id="container">
-    <h1>hello, {{ route.path }}</h1>
+    <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
+    <h1>{{ activity.name }}</h1>
   </div>
 </template>
 
