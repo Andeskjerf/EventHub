@@ -16,4 +16,7 @@ public interface ActivityInstanceRepo extends JpaRepository<ActivityInstance, UU
     Optional<ActivityInstance> findByEventDate(ZonedDateTime eventDate);
 
     List<ActivityInstance> findByActivityOrderByEventDate(Activity activity);
+
+    Optional<ActivityInstance> findFirstByActivityAndEventDateAfterOrderByEventDate(Activity activity,
+            ZonedDateTime currentDate);
 }

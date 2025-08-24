@@ -1,4 +1,5 @@
 import { apiClient } from "@/api/axios";
+import type { ActivityInstance } from "@/models/activity_instance";
 import type { CreateActivityRequest } from "@/models/create_activity_request";
 
 export const activityService = {
@@ -17,5 +18,13 @@ export const activityService = {
 				message: error.response?.data?.error || "failed to create activity",
 			};
 		}
+	},
+
+	async getNextInstanceOfAllActiveActivities(): Promise<
+		Array<ActivityInstance>
+	> {
+		const response = await apiClient.get("/activity/next-active");
+		console.log(response);
+		return [];
 	},
 };

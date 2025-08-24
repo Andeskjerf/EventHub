@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 
 import jakarta.validation.Valid;
+import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
@@ -73,6 +74,7 @@ public class ActivityController {
         return activityInstanceService.getAllParticipantsForActivity(activityId);
     }
 
+    // FIXME: this could probably get refactored into a seperate controller
     @GetMapping("/{activityId}/instances")
     public List<ActivityInstance> getActivityInstances(
             @PathVariable UUID activityId) {
@@ -86,6 +88,12 @@ public class ActivityController {
             return new ArrayList<>();
         }
         return activityInstanceService.getAllInstancesForActivity(activity.get());
+    }
+
+    // FIXME: this could probably get refactored into a seperate controller
+    @GetMapping("/next-active")
+    public List<ActivityInstanceDTO> getNextAllActiveInstances() {
+        return activityInstanceService.getAllNextActiveInstancesDTO();
     }
 
     @GetMapping("/all")

@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import sh.lmao.event_hub.dto.mappers.ActivityMapper;
+import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
@@ -37,6 +39,9 @@ public class ActivityInstanceService {
     @Autowired
     private ParticipantRepo participantRepo;
 
+    @Autowired
+    private ActivityMapper activityMapper;
+
     public ActivityInstance createInstance(Activity activity, ZonedDateTime eventDate) {
         ActivityInstance instance = new ActivityInstance();
         instance.setActivity(activity);
@@ -52,7 +57,7 @@ public class ActivityInstanceService {
     }
 
     public void initFuturePopulating(Activity activity) {
-        // if the repeat interval is null, we don't want to repeat the activity
+        // if the repeat interval is zero, we don't want to repeat the activity
         if (activity.getRepeatInterval() == 0)
             return;
 
@@ -103,5 +108,36 @@ public class ActivityInstanceService {
 
     public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
         return activityInstanceRepo.findByActivityOrderByEventDate(activity);
+    }
+
+    public List<ActivityInstance> getAllNextActiveInstances() {
+        List<ActivityInstance> instances = new ArrayList<>();
+        List<Activity> activeActivities = activityRepo.findAllByActive(true);
+
+        ZonedDateTime now = ZonedDateTime.now();
+        for (Activity activity : activeActivities) {
+            Optional<ActivityInstance> instance = activityInstanceRepo
+                    .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
+            instance.ifPresent(instances::add);
+        }
+
+        return instances;
+    }
+
+    // this is not very DRY
+    public List<ActivityInstanceDTO> getAllNextActiveInstancesDTO() {
+        List<ActivityInstanceDTO> dtos = new ArrayList<>();
+        List<Activity> activeActivities = activityRepo.findAllByActive(true);
+
+        ZonedDateTime now = ZonedDateTime.now();
+        for (Activity activity : activeActivities) {
+            Optional<ActivityInstance> instance = activityInstanceRepo
+                    .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
+            if (instance.isPresent()) {
+                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get()));
+            }
+        }
+
+        return dtos;
     }
 }
