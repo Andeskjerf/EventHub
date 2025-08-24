@@ -45,6 +45,6 @@ public class Participant {
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
 
-    @Pattern(regexp = "^\\+?[0-9\\s\\-]{8,20}$", message = "Phone number can contain digits, spaces, dashes, and optional + prefix")
+    @Pattern(regexp = "^\\+?[0-9\\s\\-]{0,20}$", message = "Phone number can contain digits, spaces, dashes, and optional + prefix")
     private String phoneNumber;
 }
