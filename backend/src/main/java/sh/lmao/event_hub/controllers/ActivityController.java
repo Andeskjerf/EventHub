@@ -1,9 +1,7 @@
 package sh.lmao.event_hub.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.LoggerFactory;
@@ -92,16 +90,7 @@ public class ActivityController {
     @GetMapping("/{activityId}/instances")
     public List<ActivityInstance> getActivityInstances(
             @PathVariable UUID activityId) {
-        // FIXME: we shouldn't have logic like this in the controller
-        // adding activityService to activityInstanceService would cause a circular
-        // dependency
-        // for now, just do it like this
-        Optional<Activity> activity = activityService.getActivity(activityId);
-        if (activity.isEmpty()) {
-            logger.warn("no activity found with given ID, '{}'", activityId);
-            return new ArrayList<>();
-        }
-        return activityInstanceService.getAllInstancesForActivity(activity.get());
+        return activityOrchestrationService.getActivityInstances(activityId);
     }
 
     // FIXME: this could probably get refactored into a seperate controller

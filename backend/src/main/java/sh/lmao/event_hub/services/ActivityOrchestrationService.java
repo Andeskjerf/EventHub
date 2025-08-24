@@ -31,6 +31,14 @@ import sh.lmao.event_hub.repositories.ParticipantRepo;
 @Service
 public class ActivityOrchestrationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
+
+    @Autowired
+    private ActivityService activityService;
+
+    @Autowired
+    private ActivityInstanceService activityInstanceService;
+
     @Autowired
     private ActivityRepo activityRepo;
 
@@ -42,7 +50,6 @@ public class ActivityOrchestrationService {
 
     @Autowired
     private ActivityMapper activityMapper;
-
 
     public List<ActivityInstance> getAllNextActiveInstances() {
         List<ActivityInstance> instances = new ArrayList<>();
@@ -74,5 +81,14 @@ public class ActivityOrchestrationService {
         }
 
         return dtos;
+    }
+
+    public List<ActivityInstance> getActivityInstances(UUID activityId) {
+        Optional<Activity> activity = activityService.getActivity(activityId);
+        if (activity.isEmpty()) {
+            logger.warn("no activity found with given ID, '{}'", activityId);
+            return new ArrayList<>();
+        }
+        return activityInstanceService.getAllInstancesForActivity(activity.get());
     }
 }
