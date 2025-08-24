@@ -24,7 +24,6 @@ export const activityService = {
 		Array<ActivityInstance>
 	> {
 		const response = await apiClient.get("/activity/next-active");
-		console.log(response);
-		return [];
+		return response.data;
 	},
 };
