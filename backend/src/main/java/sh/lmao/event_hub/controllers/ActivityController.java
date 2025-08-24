@@ -25,7 +25,7 @@ import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
-import sh.lmao.event_hub.services.ActivityInstanceService;
+import sh.lmao.event_hub.services.ActivityOrchestrationService;
 import sh.lmao.event_hub.services.ActivityService;
 
 @RestController
@@ -37,7 +37,12 @@ public class ActivityController {
     private ActivityService activityService;
 
     @Autowired
-    private ActivityInstanceService activityInstanceService;
+    private ActivityOrchestrationService activityOrchestrationService;
+
+    // @GetMapping("/{activityInstanceId}")
+    // public ResponseEntity<Map<String, Object>> getActivity(@PathVariable UUID activityInstanceId) {
+
+    // }
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
@@ -61,7 +66,7 @@ public class ActivityController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("participant",
-                            activityInstanceService.addParticipantForActivity(activityInstanceId, participant)));
+                            activityOrchestrationService.addParticipantForActivity(activityInstanceId, participant)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));
@@ -71,7 +76,7 @@ public class ActivityController {
     @GetMapping("/{activityId}/participants")
     public List<Participant> getParticipants(
             @PathVariable UUID activityId) {
-        return activityInstanceService.getAllParticipantsForActivity(activityId);
+        return activityOrchestrationService.getAllParticipantsForActivity(activityId);
     }
 
     // FIXME: this could probably get refactored into a seperate controller
@@ -87,13 +92,13 @@ public class ActivityController {
             logger.warn("no activity found with given ID, '{}'", activityId);
             return new ArrayList<>();
         }
-        return activityInstanceService.getAllInstancesForActivity(activity.get());
+        return activityOrchestrationService.getAllInstancesForActivity(activity.get());
     }
 
     // FIXME: this could probably get refactored into a seperate controller
     @GetMapping("/next-active")
     public List<ActivityInstanceDTO> getNextAllActiveInstances() {
-        return activityInstanceService.getAllNextActiveInstancesDTO();
+        return activityOrchestrationService.getAllNextActiveInstancesDTO();
     }
 
     @GetMapping("/all")

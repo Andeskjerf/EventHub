@@ -36,12 +36,6 @@ public class ActivityInstanceService {
     @Autowired
     private ActivityInstanceRepo activityInstanceRepo;
 
-    @Autowired
-    private ParticipantRepo participantRepo;
-
-    @Autowired
-    private ActivityMapper activityMapper;
-
     public ActivityInstance createInstance(Activity activity, ZonedDateTime eventDate) {
         ActivityInstance instance = new ActivityInstance();
         instance.setActivity(activity);
@@ -91,54 +85,4 @@ public class ActivityInstanceService {
         return instances;
     }
 
-    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
-            throws NotFoundException {
-        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
-        if (activity.isEmpty()) {
-            throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
-        }
-
-        participant.setActivityInstance(activity.get());
-        return participantRepo.save(participant);
-    }
-
-    public List<Participant> getAllParticipantsForActivity(UUID activityId) {
-        return participantRepo.findByActivityId(activityId);
-    }
-
-    public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
-        return activityInstanceRepo.findByActivityOrderByEventDate(activity);
-    }
-
-    public List<ActivityInstance> getAllNextActiveInstances() {
-        List<ActivityInstance> instances = new ArrayList<>();
-        List<Activity> activeActivities = activityRepo.findAllByActive(true);
-
-        ZonedDateTime now = ZonedDateTime.now();
-        for (Activity activity : activeActivities) {
-            Optional<ActivityInstance> instance = activityInstanceRepo
-                    .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
-            instance.ifPresent(instances::add);
-        }
-
-        return instances;
-    }
-
-    // this is not very DRY
-    public List<ActivityInstanceDTO> getAllNextActiveInstancesDTO() {
-        List<ActivityInstanceDTO> dtos = new ArrayList<>();
-        List<Activity> activeActivities = activityRepo.findAllByActive(true);
-
-        ZonedDateTime now = ZonedDateTime.now();
-        for (Activity activity : activeActivities) {
-            Optional<ActivityInstance> instance = activityInstanceRepo
-                    .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
-            if (instance.isPresent()) {
-                List<Participant> participants = participantRepo.findByActivityId(instance.get().getId());
-                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get(), participants.size()));
-            }
-        }
-
-        return dtos;
-    }
 }

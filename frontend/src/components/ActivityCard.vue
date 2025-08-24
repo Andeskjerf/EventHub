@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { type ActivityInstance } from '@/models/activity_instance';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const { activity } = defineProps<{
   activity: ActivityInstance,
 }>()
+
+function clickHandler() {
+  router.push(`/activities/${activity.instanceId}`)
+}
 
 function formatParticipationCount(): string {
   if (activity.maxParticipants == 0) {
@@ -26,7 +33,7 @@ function formatEventDate(eventDate: string): string {
 </script>
 
 <template>
-  <div class="card no-select" id="container">
+  <div @click="clickHandler" class="card no-select" id="container">
     <div class="flex space-between" id="header">
       <div id="activityName">{{ activity.name }}</div>
       <div id="participantCount">{{ formatParticipationCount() }}</div>
@@ -72,22 +79,18 @@ function formatEventDate(eventDate: string): string {
 }
 
 .card {
-  /* Subtle everyday shadow */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
-  /* Smooth transitions */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 
 .card:hover {
-  /* Lift it up with a bigger shadow */
   transform: translateY(-2px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .card:active {
-  /* Press down effect */
   transform: translateY(0);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
