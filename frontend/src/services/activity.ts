@@ -20,6 +20,23 @@ export const activityService = {
 		}
 	},
 
+	async getActivityInfo(instanceId: string) {
+		try {
+			const response = await apiClient.get(`/activity/${instanceId}`);
+			return {
+				success: true,
+				data: response.data,
+				message: "activity gotten",
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error.response?.data?.error || "failed to get activity",
+			};
+		}
+	},
+
 	async getNextInstanceOfAllActiveActivities(): Promise<
 		Array<ActivityInstance>
 	> {

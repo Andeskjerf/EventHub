@@ -60,6 +60,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_GET_ONLY = {
             "/api/activity/all",
             "/api/activity/next-active",
+            "/api/activity/*",
             "/api/activity/*/instances",
     };
 

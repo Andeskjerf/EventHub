@@ -2,6 +2,7 @@ package sh.lmao.event_hub.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.LoggerFactory;
@@ -45,11 +46,16 @@ public class ActivityController {
     @Autowired
     private ActivityOrchestrationService activityOrchestrationService;
 
-    // @GetMapping("/{activityInstanceId}")
-    // public ResponseEntity<Map<String, Object>> getActivity(@PathVariable UUID
-    // activityInstanceId) {
-
-    // }
+    @GetMapping("/{activityInstanceId}")
+    public ResponseEntity<Map<String, Object>> getActivityDTO(@PathVariable UUID activityInstanceId) {
+        Optional<ActivityInstanceDTO> dto = activityOrchestrationService.getActivityInstanceDTO(activityInstanceId);
+        if (dto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "couldn't find activity instance with given ID"));
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("activity", dto.get()));
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {

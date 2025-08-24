@@ -42,6 +42,9 @@ public class ActivityOrchestrationService {
     private ActivityInstanceService activityInstanceService;
 
     @Autowired
+    private ParticipantService participantService;
+
+    @Autowired
     private ActivityRepo activityRepo;
 
     @Autowired
@@ -65,6 +68,23 @@ public class ActivityOrchestrationService {
         }
 
         return instances;
+    }
+
+    public Optional<ActivityInstanceDTO> getActivityInstanceDTO(UUID activityInstanceId) {
+        Optional<ActivityInstance> instance = activityInstanceService.getInstance(activityInstanceId);
+        if (instance.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<Activity> activity = activityService.getActivity(instance.get().getActivity().getId());
+        if (activity.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<Participant> participants = participantService
+                .getAllParticipantsForActivityInstance(instance.get().getId());
+
+        return Optional.of(activityMapper.toDashboardInstanceDto(activity.get(), instance.get(), participants.size()));
     }
 
     // this is not very DRY

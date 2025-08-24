@@ -46,6 +46,10 @@ public class ActivityInstanceService {
         return activityInstanceRepo.save(instance);
     }
 
+    public Optional<ActivityInstance> getInstance(UUID activityInstanceId) {
+        return activityInstanceRepo.findById(activityInstanceId);
+    }
+
     @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
     private void scheduledFutureInstancePopulator() {
         for (Activity activity : activityRepo.findAll()) {
