@@ -43,24 +43,6 @@ public class ActivityOrchestrationService {
     @Autowired
     private ActivityMapper activityMapper;
 
-    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
-            throws NotFoundException {
-        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
-        if (activity.isEmpty()) {
-            throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
-        }
-
-        participant.setActivityInstance(activity.get());
-        return participantRepo.save(participant);
-    }
-
-    public List<Participant> getAllParticipantsForActivity(UUID activityId) {
-        return participantRepo.findByActivityId(activityId);
-    }
-
-    public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
-        return activityInstanceRepo.findByActivityOrderByEventDate(activity);
-    }
 
     public List<ActivityInstance> getAllNextActiveInstances() {
         List<ActivityInstance> instances = new ArrayList<>();

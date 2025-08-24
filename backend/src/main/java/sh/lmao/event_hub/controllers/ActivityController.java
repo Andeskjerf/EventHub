@@ -25,8 +25,10 @@ import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
+import sh.lmao.event_hub.services.ActivityInstanceService;
 import sh.lmao.event_hub.services.ActivityOrchestrationService;
 import sh.lmao.event_hub.services.ActivityService;
+import sh.lmao.event_hub.services.ParticipantService;
 
 @RestController
 @RequestMapping("/api/activity")
@@ -37,10 +39,17 @@ public class ActivityController {
     private ActivityService activityService;
 
     @Autowired
+    private ParticipantService participantService;
+
+    @Autowired
+    private ActivityInstanceService activityInstanceService;
+
+    @Autowired
     private ActivityOrchestrationService activityOrchestrationService;
 
     // @GetMapping("/{activityInstanceId}")
-    // public ResponseEntity<Map<String, Object>> getActivity(@PathVariable UUID activityInstanceId) {
+    // public ResponseEntity<Map<String, Object>> getActivity(@PathVariable UUID
+    // activityInstanceId) {
 
     // }
 
@@ -66,7 +75,7 @@ public class ActivityController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("participant",
-                            activityOrchestrationService.addParticipantForActivity(activityInstanceId, participant)));
+                            activityInstanceService.addParticipantForActivity(activityInstanceId, participant)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));
@@ -76,7 +85,7 @@ public class ActivityController {
     @GetMapping("/{activityId}/participants")
     public List<Participant> getParticipants(
             @PathVariable UUID activityId) {
-        return activityOrchestrationService.getAllParticipantsForActivity(activityId);
+        return participantService.getAllParticipantsForActivityInstance(activityId);
     }
 
     // FIXME: this could probably get refactored into a seperate controller
@@ -92,7 +101,7 @@ public class ActivityController {
             logger.warn("no activity found with given ID, '{}'", activityId);
             return new ArrayList<>();
         }
-        return activityOrchestrationService.getAllInstancesForActivity(activity.get());
+        return activityInstanceService.getAllInstancesForActivity(activity.get());
     }
 
     // FIXME: this could probably get refactored into a seperate controller

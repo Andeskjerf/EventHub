@@ -36,6 +36,9 @@ public class ActivityInstanceService {
     @Autowired
     private ActivityInstanceRepo activityInstanceRepo;
 
+    @Autowired
+    private ParticipantRepo participantRepo;
+
     public ActivityInstance createInstance(Activity activity, ZonedDateTime eventDate) {
         ActivityInstance instance = new ActivityInstance();
         instance.setActivity(activity);
@@ -85,4 +88,18 @@ public class ActivityInstanceService {
         return instances;
     }
 
+    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
+            throws NotFoundException {
+        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
+        if (activity.isEmpty()) {
+            throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
+        }
+
+        participant.setActivityInstance(activity.get());
+        return participantRepo.save(participant);
+    }
+
+    public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
+        return activityInstanceRepo.findByActivityOrderByEventDate(activity);
+    }
 }
