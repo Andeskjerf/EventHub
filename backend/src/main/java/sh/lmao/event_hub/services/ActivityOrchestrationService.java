@@ -28,6 +28,8 @@ import sh.lmao.event_hub.repositories.ActivityRepo;
 import sh.lmao.event_hub.repositories.ActivityInstanceRepo;
 import sh.lmao.event_hub.repositories.ParticipantRepo;
 
+// FIXME: this service should only chain together other service method calls
+// right now, it's doing direct repo calls
 @Service
 public class ActivityOrchestrationService {
 
