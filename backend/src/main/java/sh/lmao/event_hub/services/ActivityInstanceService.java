@@ -3,7 +3,9 @@ package sh.lmao.event_hub.services;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,22 +105,32 @@ public class ActivityInstanceService {
 
     private List<ActivityInstance> populateFutureInstances(Activity activity, int days) {
         List<ActivityInstance> instances = new ArrayList<>();
-
-        ZonedDateTime eventDate = activity.getEventDate();
+        ZonedDateTime startDate = activity.getEventDate();
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.systemDefault());
+        ZonedDateTime endDate = now.plusDays(days);
         int interval = activity.getRepeatInterval();
 
-        long deltaAsDays = (now.toEpochSecond() - eventDate.toEpochSecond()) / 60 / 60 / 24;
-        now = now.plusDays(days - (deltaAsDays % interval));
+        ZonedDateTime currentDate = startDate;
 
-        while (now.toEpochSecond() > eventDate.toEpochSecond()) {
-            if (activityInstanceRepo.findByEventDate(now).isPresent()) {
-                break;
+        if (startDate.isBefore(endDate)) {
+            long daysDifference = ChronoUnit.DAYS.between(startDate, endDate);
+            long cycles = daysDifference / interval;
+            currentDate = startDate.plusDays(cycles * interval);
+
+            if (currentDate.isAfter(endDate)) {
+                currentDate = currentDate.minusDays(interval);
             }
-            instances.add(createInstance(activity, now));
-            now = now.plusDays(-interval);
         }
 
+        while (currentDate.isAfter(now) || currentDate.isEqual(now)) {
+            if (activityInstanceRepo.findByEventDate(currentDate).isPresent()) {
+                break;
+            }
+            instances.add(createInstance(activity, currentDate));
+            currentDate = currentDate.minusDays(interval);
+        }
+
+        Collections.reverse(instances);
         return instances;
     }
 
