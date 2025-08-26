@@ -12,7 +12,10 @@ import type { Participant } from '@/models/participant';
 const route = useRoute()
 const router = useRouter()
 
+const id = ref()
 const activity = ref()
+const nextActivity = ref()
+const previousActivity = ref()
 const participants = ref<Participant[]>([])
 const error = ref("")
 const loading = ref(true)
@@ -23,17 +26,43 @@ const phone = ref("");
 const options = ref<string[]>([])
 
 onMounted(async () => {
-  await getActivityInfo()
-  await getParticipantInfo()
-  loading.value = false
+  id.value = route.params["id"]
+  await init()
 })
 
+async function init() {
+  loading.value = true
+  error.value = ""
+  await getActivityInfo()
+  await getPreviousActivityInfo()
+  await getNextActivityInfo()
+  await getParticipantInfo()
+  loading.value = false
+}
+
+// TODO: not DRY
 async function getActivityInfo() {
-  const response = await activityService.getActivityInfo(route.params["id"])
+  const response = await activityService.getActivityInfo(id.value)
   if (response.success) {
     activity.value = response.data.activity as ActivityInstance
   } else {
     error.value = response.message
+  }
+}
+
+async function getNextActivityInfo() {
+  nextActivity.value = null
+  const response = await activityService.getNextActivityInfo(id.value)
+  if (response.success) {
+    nextActivity.value = response.data.activity as ActivityInstance
+  }
+}
+
+async function getPreviousActivityInfo() {
+  previousActivity.value = null
+  const response = await activityService.getPreviousActivityInfo(id.value)
+  if (response.success) {
+    previousActivity.value = response.data.activity as ActivityInstance
   }
 }
 
@@ -72,6 +101,12 @@ async function deleteHandler() {
   await activityService.deleteActivity(activity.value.instanceId)
   router.push("/")
 }
+
+function setId(instanceId: string) {
+  id.value = instanceId
+  router.push(`/activities/${id.value}`)
+  init()
+}
 </script>
 
 <template>
@@ -80,6 +115,10 @@ async function deleteHandler() {
     <button v-if="userModule.state.isAuthenticated" @click="deleteHandler">SLETT</button>
 
     <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
+    <div class="flex space-between">
+      <a @click="setId(previousActivity.instanceId)" v-if="previousActivity" href="#">Forrige</a>
+      <a @click="setId(nextActivity.instanceId)" v-if="nextActivity" href="#">Neste</a>
+    </div>
     <div id="header" class="flex space-between h-center">
       <div id="activityName">{{ activity.name }}</div>
       <div id="participantCount">{{ activityUtils.formatParticipationCount(activity) }}</div>

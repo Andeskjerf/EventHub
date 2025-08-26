@@ -101,6 +101,16 @@ public class ActivityOrchestrationService {
         return instances;
     }
 
+    public Optional<ActivityInstanceDTO> getNextActivityInstanceDTOFromId(UUID activityInstanceId) {
+        ActivityInstance instance = activityInstanceService.getNextInstance(activityInstanceId).orElseThrow();
+        return getActivityInstanceDTO(instance.getId());
+    }
+
+    public Optional<ActivityInstanceDTO> getPreviousActivityInstanceDTOFromId(UUID activityInstanceId) {
+        ActivityInstance instance = activityInstanceService.getPreviousInstance(activityInstanceId).orElseThrow();
+        return getActivityInstanceDTO(instance.getId());
+    }
+
     public Optional<ActivityInstanceDTO> getActivityInstanceDTO(UUID activityInstanceId) {
         Optional<ActivityInstance> instance = activityInstanceService.getInstance(activityInstanceId);
         if (instance.isEmpty()) {
