@@ -105,7 +105,7 @@ async function submitHandler(e: Event) {
     </form>
     <div v-if="participants.length > 0">
       <div class="flex space-between h-center">
-        <h2 id="participantsTitle">Påmeldte</h2>
+        <h3 id="participantsTitle">Påmeldte</h3>
         <h3>{{ participants.length }} totalt</h3>
       </div>
       <div class="flex space-between" v-for="participant in participants">
@@ -154,10 +154,6 @@ async function submitHandler(e: Event) {
 
 #inputs>div {
   display: grid;
-}
-
-#participantsTitle {
-  padding-bottom: 12px;
 }
 
 .chosenActivitiesLabel {
