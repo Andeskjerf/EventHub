@@ -67,11 +67,18 @@ async function submitHandler(e: Event) {
   await activityService.registerParticipant(participant)
   router.push("/")
 }
+
+async function deleteHandler() {
+  await activityService.deleteActivity(activity.value.instanceId)
+  router.push("/")
+}
 </script>
 
 <template>
   <h1 v-if="loading"></h1>
   <div v-else id="container">
+    <button v-if="userModule.state.isAuthenticated" @click="deleteHandler">SLETT</button>
+
     <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
     <div id="header" class="flex space-between h-center">
       <div id="activityName">{{ activity.name }}</div>

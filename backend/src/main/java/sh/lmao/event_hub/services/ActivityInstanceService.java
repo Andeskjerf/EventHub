@@ -62,6 +62,10 @@ public class ActivityInstanceService {
         return activityInstanceRepo.save(instance);
     }
 
+    public void deleteFutureInstances(UUID activityId) {
+        activityInstanceRepo.deleteByEventDateAfter(ZonedDateTime.now());
+    }
+
     public Optional<ActivityInstance> getInstance(UUID activityInstanceId) {
         return activityInstanceRepo.findById(activityInstanceId);
     }

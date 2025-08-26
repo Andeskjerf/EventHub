@@ -14,4 +14,6 @@ public interface ActivityRepo extends JpaRepository<Activity, UUID> {
     Optional<Activity> findByName(String name);
 
     List<Activity> findAllByActive(boolean active);
+
+    Optional<Activity> findByNameAndActive(String name, boolean active);
 }
