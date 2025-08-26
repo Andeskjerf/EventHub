@@ -77,7 +77,7 @@ async function deleteHandler() {
 <template>
   <h1 v-if="loading"></h1>
   <div v-else id="container">
-    <button @click="deleteHandler">SLETT</button>
+    <button v-if="userModule.state.isAuthenticated" @click="deleteHandler">SLETT</button>
 
     <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
     <div id="header" class="flex space-between h-center">
