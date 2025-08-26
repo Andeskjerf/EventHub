@@ -145,7 +145,7 @@ function setId(instanceId: string) {
     </div>
 
     <div class="description">
-      {{ activity.description }}
+      {{ activity.description.length > 0 ? activity.description : "Ingen beskrivelse" }}
     </div>
 
     <form @submit="submitHandler" class="registration-form">
