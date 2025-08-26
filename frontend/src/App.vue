@@ -153,7 +153,7 @@ const authed = computed(() => userModule.state.isAuthenticated);
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-top: 100px;
+  margin-top: 50px;
 }
 
 .main-content {
