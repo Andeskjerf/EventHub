@@ -18,25 +18,36 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * ParticipantActivityOption
+ *
+ * Just a junction table to connect ActivityOption and Participant
+ */
 @Entity
-@Table(name = "activity_options")
+@Table(name = "participant_activity_options")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class ActivityOption {
+public class ParticipantActivityOption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "activity_id")
+    @JoinColumn(name = "activity_option_id")
     @JsonIgnore
-    private Activity activity;
+    private ActivityOption activityOption;
 
-    @Column(name = "activity_id", insertable = false, updatable = false)
-    private UUID activityId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "participant_id")
+    @JsonIgnore
+    private Participant participant;
 
-    private String name;
+    @Column(name = "activity_option_id", insertable = false, updatable = false)
+    private UUID activityOptionId;
+
+    @Column(name = "participant_id", insertable = false, updatable = false)
+    private UUID participantId;
 }

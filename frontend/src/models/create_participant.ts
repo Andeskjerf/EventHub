@@ -1,5 +1,6 @@
 export interface CreateParticipant {
-	activityId: string;
+	activityInstanceId: string;
 	name: string;
 	phoneNumber: string;
+	activityOptionIds: string[];
 }

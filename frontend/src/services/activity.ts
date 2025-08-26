@@ -49,7 +49,7 @@ export const activityService = {
 	// TODO: handle errors
 	async registerParticipant(participant: CreateParticipant) {
 		const response = await apiClient.post(
-			`/activity/${participant.activityId}/participants`,
+			`/activity/${participant.activityInstanceId}/participants`,
 			participant,
 		);
 		console.log(response);

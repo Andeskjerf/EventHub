@@ -7,4 +7,5 @@ export interface CreateActivityRequest {
 	description: string;
 	maxParticipants: number;
 	repeatInterval: number;
+	options: string[];
 }

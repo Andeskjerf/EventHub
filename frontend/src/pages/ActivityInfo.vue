@@ -7,17 +7,20 @@ import { activityUtils } from '@/utils/activity_utils';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { userModule } from '@/stores/auth/module';
+import type { Participant } from '@/models/participant';
 
 const route = useRoute()
 const router = useRouter()
 
 const activity = ref()
-const participants = ref([])
+const participants = ref<Participant[]>([])
 const error = ref("")
 const loading = ref(true)
 
 const name = ref("");
 const phone = ref("");
+
+const options = ref<string[]>([])
 
 onMounted(async () => {
   await getActivityInfo()
@@ -42,12 +45,23 @@ async function getParticipantInfo() {
   participants.value = await activityService.getParticipants(activity.value.instanceId);
 }
 
+function onOptionToggled(e: Event) {
+  const id = e.target.id
+  if (options.value.some((val) => val == id)) {
+    options.value = options.value.filter((val) => val != id)
+  } else {
+    options.value.push(id)
+  }
+  console.log(options.value)
+}
+
 async function submitHandler(e: Event) {
   e.preventDefault()
   const participant: CreateParticipant = {
-    activityId: activity.value.instanceId,
+    activityInstanceId: activity.value.instanceId,
     name: name.value,
     phoneNumber: phone.value,
+    activityOptionIds: options.value
   }
 
   await activityService.registerParticipant(participant)
@@ -81,12 +95,24 @@ async function submitHandler(e: Event) {
         <label>Telefon</label>
         <input v-model="phone"></input>
       </div>
+      <div>
+        <div v-for="opt in activity.options">
+          <input type="checkbox" :id="opt.id" @change="onOptionToggled" />
+          <label :for="opt.id">{{ opt.name }}</label>
+        </div>
+      </div>
       <button :disabled="name.length == 0">Meld meg på</button>
     </form>
     <div v-if="participants.length > 0">
-      <h2 id="participantsTitle">Påmeldte</h2>
+      <div class="flex space-between h-center">
+        <h3 id="participantsTitle">Påmeldte</h3>
+        <h3>{{ participants.length }} totalt</h3>
+      </div>
       <div class="flex space-between" v-for="participant in participants">
-        <div>{{ participant.name }}</div>
+        <div class="flex">
+          <div>{{ participant.name }}</div>
+          <div class="chosenActivitiesLabel">{{ participant.activityOptionNames.join(', ') }}</div>
+        </div>
         <div>{{ participant.phoneNumber }}</div>
       </div>
     </div>
@@ -130,8 +156,11 @@ async function submitHandler(e: Event) {
   display: grid;
 }
 
-#participantsTitle {
-  padding-bottom: 12px;
+.chosenActivitiesLabel {
+  padding-left: 12px;
+  font-size: 12px;
+  color: gray;
+  align-self: center;
 }
 
 .h-center {
