@@ -19,7 +19,7 @@ const loading = ref(true)
 const name = ref("");
 const phone = ref("");
 
-const options = ref({})
+const options = ref<string[]>([])
 
 onMounted(async () => {
   await getActivityInfo()
@@ -44,12 +44,23 @@ async function getParticipantInfo() {
   participants.value = await activityService.getParticipants(activity.value.instanceId);
 }
 
+function onOptionToggled(e: Event) {
+  const id = e.target.id
+  if (options.value.some((val) => val == id)) {
+    options.value = options.value.filter((val) => val != id)
+  } else {
+    options.value.push(id)
+  }
+  console.log(options.value)
+}
+
 async function submitHandler(e: Event) {
   e.preventDefault()
   const participant: CreateParticipant = {
-    activityId: activity.value.instanceId,
+    activityInstanceId: activity.value.instanceId,
     name: name.value,
     phoneNumber: phone.value,
+    selectedOptions: options.value
   }
 
   await activityService.registerParticipant(participant)
@@ -85,7 +96,7 @@ async function submitHandler(e: Event) {
       </div>
       <div>
         <div v-for="opt in activity.options">
-          <input type="checkbox" :id="opt.id" />
+          <input type="checkbox" :id="opt.id" @change="onOptionToggled" />
           <label :for="opt.id">{{ opt.name }}</label>
         </div>
       </div>

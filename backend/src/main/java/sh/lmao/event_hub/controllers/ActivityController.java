@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.dto.request.CreateActivityDTO;
+import sh.lmao.event_hub.dto.request.RegisterParticipantDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
@@ -76,7 +77,7 @@ public class ActivityController {
     @PostMapping("/{activityInstanceId}/participants")
     public ResponseEntity<Map<String, Object>> addParticipant(
             @PathVariable UUID activityInstanceId,
-            @Valid @RequestBody Participant participant) {
+            @Valid @RequestBody RegisterParticipantDTO participant) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("participant",

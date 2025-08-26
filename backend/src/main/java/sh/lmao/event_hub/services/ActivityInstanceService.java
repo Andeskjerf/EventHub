@@ -16,19 +16,28 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sh.lmao.event_hub.dto.mappers.ActivityMapper;
+import sh.lmao.event_hub.dto.mappers.ParticipantMapper;
+import sh.lmao.event_hub.dto.request.RegisterParticipantDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
+import sh.lmao.event_hub.entities.ActivityOption;
 import sh.lmao.event_hub.entities.Participant;
+import sh.lmao.event_hub.entities.ParticipantActivityOption;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
 import sh.lmao.event_hub.exceptions.NotFoundException;
 import sh.lmao.event_hub.repositories.ActivityRepo;
+import sh.lmao.event_hub.repositories.ParticipantActivityOptionsRepo;
 import sh.lmao.event_hub.repositories.ActivityInstanceRepo;
+import sh.lmao.event_hub.repositories.ActivityOptionRepo;
 import sh.lmao.event_hub.repositories.ParticipantRepo;
 
 @Service
 public class ActivityInstanceService {
     private static final Logger logger = LoggerFactory.getLogger(ActivityInstanceService.class);
+
+    @Autowired
+    private ParticipantActivityOptionService participantActivityOptionService;
 
     @Autowired
     private ActivityRepo activityRepo;
@@ -37,7 +46,13 @@ public class ActivityInstanceService {
     private ActivityInstanceRepo activityInstanceRepo;
 
     @Autowired
+    private ActivityOptionRepo activityOptionRepo;
+
+    @Autowired
     private ParticipantRepo participantRepo;
+
+    @Autowired
+    private ParticipantMapper participantMapper;
 
     public ActivityInstance createInstance(Activity activity, ZonedDateTime eventDate) {
         ActivityInstance instance = new ActivityInstance();
@@ -92,15 +107,32 @@ public class ActivityInstanceService {
         return instances;
     }
 
-    public Participant addParticipantForActivity(UUID activityInstanceId, Participant participant)
+    public Participant addParticipantForActivity(UUID activityInstanceId, RegisterParticipantDTO dto)
             throws NotFoundException {
-        Optional<ActivityInstance> activity = activityInstanceRepo.findById(activityInstanceId);
-        if (activity.isEmpty()) {
+        Optional<ActivityInstance> instance = activityInstanceRepo.findById(activityInstanceId);
+        if (instance.isEmpty()) {
             throw new NotFoundException("no activity instance found with ID: " + activityInstanceId);
         }
 
-        participant.setActivityInstance(activity.get());
-        return participantRepo.save(participant);
+        Participant participant = participantMapper.fromRegisterParticipantDtoToParticipant(dto, instance.get());
+
+        participant.setActivityInstance(instance.get());
+        participant = participantRepo.save(participant);
+
+        List<String> activityOptionIds = dto.getActivityOptionIds();
+        for (String id : activityOptionIds) {
+            Optional<ActivityOption> option = activityOptionRepo.findById(UUID.fromString(id));
+            if (option.isEmpty()) {
+                logger.warn("failed to find activity option with given ID, " + id + ". skipping");
+                continue;
+            }
+
+            participantActivityOptionService.createEntity(
+                    participant.getId(),
+                    option.get().getId());
+        }
+
+        return participant;
     }
 
     public List<ActivityInstance> getAllInstancesForActivity(Activity activity) {
