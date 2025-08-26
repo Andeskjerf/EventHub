@@ -37,6 +37,9 @@ public class ActivityInstance {
     @JoinColumn(name = "activity_id")
     private Activity activity;
 
+    @Column(name = "activity_id", insertable = false, updatable = false)
+    private UUID activityId;
+
     @Future(message = "Event date must be in the future")
     private ZonedDateTime eventDate;
 
