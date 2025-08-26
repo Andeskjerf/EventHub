@@ -62,7 +62,9 @@ const authed = computed(() => userModule.state.isAuthenticated);
 .app-header {
   background: white;
   border-bottom: 2px solid #f1f3f4;
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   top: 0;
   z-index: 1000;
 }
@@ -151,6 +153,7 @@ const authed = computed(() => userModule.state.isAuthenticated);
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin-top: 100px;
 }
 
 .main-content {
