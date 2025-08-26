@@ -14,7 +14,7 @@ const location = ref("")
 const meetLocation = ref("")
 const description = ref("")
 const maxParticipants = ref(0)
-const repeatInterval = ref(7)
+const repeatInterval = ref()
 const extraOptionValue = ref<string>("")
 const activityOptions = ref<string[]>([])
 const error = ref("")
@@ -26,7 +26,7 @@ async function submitActivity(e: Event) {
   loading.value = true
   error.value = ""
   fieldErrors.value = {}
-  
+
   try {
     const activity: CreateActivityRequest = {
       name: name.value,
@@ -39,7 +39,7 @@ async function submitActivity(e: Event) {
       repeatInterval: repeatInterval.value,
       options: activityOptions.value,
     }
-    
+
     const result = await activityService.createActivity(activity)
     if (result.success) {
       router.replace("/")
@@ -99,108 +99,62 @@ function handleKeyDown(event: KeyboardEvent) {
       <form @submit="submitActivity" class="activity-form">
         <div class="form-section">
           <h3 class="section-title">Grunnleggende informasjon</h3>
-          
+
           <div class="form-group">
             <label for="name">Aktivitetsnavn</label>
-            <input 
-              id="name"
-              v-model="name" 
-              type="text"
-              placeholder="F.eks. Golf, Fotball, Bowling"
-              required
-              :disabled="loading"
-            />
+            <input id="name" v-model="name" type="text" placeholder="F.eks. Golf, Fotball, Bowling" required
+              :disabled="loading" />
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="eventDate">Dato og tidspunkt</label>
-              <input 
-                id="eventDate"
-                v-model="eventDate" 
-                type="datetime-local"
-                required
-                :disabled="loading"
-              />
+              <input id="eventDate" v-model="eventDate" type="datetime-local" required :disabled="loading" />
             </div>
 
             <div class="form-group">
               <label for="registerBefore">Påmeldingsfrist (timer før)</label>
-              <input 
-                id="registerBefore"
-                v-model.number="registerBefore" 
-                type="number"
-                min="0"
-                placeholder="24"
-                :disabled="loading"
-              />
+              <input id="registerBefore" v-model.number="registerBefore" type="number" min="0" placeholder="24"
+                :disabled="loading" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="location">Sted for aktivitet</label>
-              <input 
-                id="location"
-                v-model="location" 
-                type="text"
-                placeholder="Hvor aktiviteten finner sted"
-                required
-                :disabled="loading"
-              />
+              <input id="location" v-model="location" type="text" placeholder="Hvor aktiviteten finner sted" required
+                :disabled="loading" />
             </div>
 
             <div class="form-group">
               <label for="meetLocation">Oppmøtested</label>
-              <input 
-                id="meetLocation"
-                v-model="meetLocation" 
-                type="text"
-                placeholder="Hvor deltakerne skal møte"
-                :disabled="loading"
-              />
+              <input id="meetLocation" v-model="meetLocation" type="text" placeholder="Hvor deltakerne skal møte"
+                :disabled="loading" />
             </div>
           </div>
 
           <div class="form-group">
             <label for="description">Beskrivelse</label>
-            <textarea 
-              id="description"
-              v-model="description" 
-              rows="4"
-              placeholder="Beskriv aktiviteten..."
-              :disabled="loading"
-            ></textarea>
+            <textarea id="description" v-model="description" rows="4" placeholder="Beskriv aktiviteten..."
+              :disabled="loading"></textarea>
           </div>
         </div>
 
         <div class="form-section">
           <h3 class="section-title">Avanserte innstillinger</h3>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="maxParticipants">Maks deltakere</label>
-              <input 
-                id="maxParticipants"
-                v-model.number="maxParticipants" 
-                type="number"
-                min="0"
-                placeholder="0 for ubegrenset"
-                :disabled="loading"
-              />
+              <input id="maxParticipants" v-model.number="maxParticipants" type="number" min="0"
+                placeholder="0 for ubegrenset" :disabled="loading" />
               <small class="form-hint">0 eller tomt for ubegrenset antall deltakere</small>
             </div>
 
             <div class="form-group">
               <label for="repeatInterval">Gjenta hver (dager)</label>
-              <input 
-                id="repeatInterval"
-                v-model.number="repeatInterval" 
-                type="number"
-                min="1"
-                placeholder="7"
-                :disabled="loading"
-              />
+              <input id="repeatInterval" v-model.number="repeatInterval" type="number" min="1"
+                placeholder="Tomt for ingen gjentagelse" :disabled="loading" />
               <small class="form-hint">F.eks. 7 for ukentlig gjentagelse</small>
             </div>
           </div>
@@ -209,26 +163,16 @@ function handleKeyDown(event: KeyboardEvent) {
         <div class="form-section">
           <h3 class="section-title">Valgmuligheter</h3>
           <p class="section-description">Legg til ekstra valg deltakerne kan velge mellom</p>
-          
+
           <div class="options-container">
             <div class="add-option">
               <div class="form-group">
                 <label for="extraOption">Nytt valg</label>
                 <div class="option-input-group">
-                  <input 
-                    id="extraOption"
-                    v-model="extraOptionValue"
-                    type="text"
-                    placeholder="F.eks. Lunsj, Transport"
-                    @keydown="handleKeyDown"
-                    :disabled="loading"
-                  />
-                  <button 
-                    type="button"
-                    @click="addActivityOption"
-                    class="add-option-btn"
-                    :disabled="!extraOptionValue.trim() || loading"
-                  >
+                  <input id="extraOption" v-model="extraOptionValue" type="text" placeholder="F.eks. Lunsj, Transport"
+                    @keydown="handleKeyDown" :disabled="loading" />
+                  <button type="button" @click="addActivityOption" class="add-option-btn"
+                    :disabled="!extraOptionValue.trim() || loading">
                     Legg til
                   </button>
                 </div>
@@ -238,12 +182,7 @@ function handleKeyDown(event: KeyboardEvent) {
             <div v-if="activityOptions.length > 0" class="options-list">
               <h4 class="options-list-title">Valg som er lagt til:</h4>
               <div class="options-grid">
-                <ActivityOption 
-                  v-for="option in activityOptions" 
-                  :key="option"
-                  :value="option"
-                  @close="removeOption"
-                />
+                <ActivityOption v-for="option in activityOptions" :key="option" :value="option" @close="removeOption" />
               </div>
             </div>
           </div>
@@ -504,32 +443,32 @@ function handleKeyDown(event: KeyboardEvent) {
   .create-activity-container {
     padding: 16px;
   }
-  
+
   .create-activity-card {
     padding: 24px 20px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .form-section {
     padding: 20px 16px;
   }
-  
+
   .option-input-group {
     flex-direction: column;
   }
-  
+
   .add-option-btn {
     width: 100%;
   }
-  
+
   .submit-btn {
     width: 100%;
   }
