@@ -104,7 +104,10 @@ async function submitHandler(e: Event) {
       <button :disabled="name.length == 0">Meld meg på</button>
     </form>
     <div v-if="participants.length > 0">
-      <h2 id="participantsTitle">Påmeldte</h2>
+      <div class="flex space-between h-center">
+        <h2 id="participantsTitle">Påmeldte</h2>
+        <h3>{{ participants.length }} totalt</h3>
+      </div>
       <div class="flex space-between" v-for="participant in participants">
         <div class="flex">
           <div>{{ participant.name }}</div>
