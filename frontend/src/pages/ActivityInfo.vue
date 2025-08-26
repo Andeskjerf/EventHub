@@ -110,114 +110,394 @@ function setId(instanceId: string) {
 </script>
 
 <template>
-  <h1 v-if="loading"></h1>
-  <div v-else id="container">
-    <button v-if="userModule.state.isAuthenticated" @click="deleteHandler">SLETT</button>
+  <div class="loading-state" v-if="loading">
+    <div class="loading-text">Laster...</div>
+  </div>
 
-    <h1 v-if="error.length != 0">ERROR: {{ error }}</h1>
-    <div class="flex space-between">
-      <a @click="setId(previousActivity.instanceId)" v-if="previousActivity" href="#">Forrige</a>
-      <a @click="setId(nextActivity.instanceId)" v-if="nextActivity" href="#">Neste</a>
+  <div v-else class="container">
+    <div v-if="userModule.state.isAuthenticated" class="admin-controls">
+      <button @click="deleteHandler" class="delete-btn">Slett aktivitet</button>
     </div>
-    <div id="header" class="flex space-between h-center">
-      <div id="activityName">{{ activity.name }}</div>
-      <div id="participantCount">{{ activityUtils.formatParticipationCount(activity) }}</div>
+
+    <div v-if="error.length != 0" class="error-message">
+      Feil: {{ error }}
     </div>
-    <div id="activityValues">
+
+    <div class="navigation">
+      <button @click="setId(previousActivity.instanceId)" v-if="previousActivity" class="nav-btn">
+        ← Forrige
+      </button>
+      <button @click="setId(nextActivity.instanceId)" v-if="nextActivity" class="nav-btn">
+        Neste →
+      </button>
+    </div>
+
+    <header class="activity-header">
+      <h1 class="activity-name">{{ activity.name }}</h1>
+      <div class="participant-count">{{ activityUtils.formatParticipationCount(activity) }}</div>
+    </header>
+
+    <div class="activity-details">
       <LabelValue label="Tid" :value="activityUtils.formatEventTime(activity.eventDate)" />
       <LabelValue label="Dag" :value="activityUtils.formatEventDate(activity.eventDate)" />
       <LabelValue label="Sted" :value="activity.location" />
       <LabelValue label="Oppmøte" :value="activity.meetLocation" />
     </div>
-    <div id="description">
+
+    <div class="description">
       {{ activity.description }}
     </div>
-    <form @submit="submitHandler" id="inputs">
-      <div>
-        <label>Navn</label>
-        <input v-model="name"></input>
+
+    <form @submit="submitHandler" class="registration-form">
+      <div class="form-group">
+        <label for="name">Navn</label>
+        <input id="name" v-model="name" type="text" required />
       </div>
-      <div>
-        <label>Telefon</label>
-        <input v-model="phone"></input>
+
+      <div class="form-group">
+        <label for="phone">Telefon</label>
+        <input id="phone" v-model="phone" type="tel" />
       </div>
-      <div>
-        <div v-for="opt in activity.options">
-          <input type="checkbox" :id="opt.id" @change="onOptionToggled" />
-          <label :for="opt.id">{{ opt.name }}</label>
+
+      <div v-if="activity.options && activity.options.length > 0" class="options-group">
+        <label class="options-label">Velg alternativer:</label>
+        <div class="options-list">
+          <div v-for="opt in activity.options" :key="opt.id" class="option-item">
+            <input type="checkbox" :id="opt.id" @change="onOptionToggled" class="option-checkbox" />
+            <label :for="opt.id" class="option-label">{{ opt.name }}</label>
+          </div>
         </div>
       </div>
-      <button :disabled="name.length == 0">Meld meg på</button>
+
+      <button type="submit" :disabled="name.length == 0" class="submit-btn">
+        Meld meg på
+      </button>
     </form>
-    <div v-if="participants.length > 0">
-      <div class="flex space-between h-center">
-        <h3 id="participantsTitle">Påmeldte</h3>
-        <h3>{{ participants.length }} totalt</h3>
+
+    <div v-if="participants.length > 0" class="participants-section">
+      <div class="participants-header">
+        <h3>Påmeldte</h3>
+        <span class="total-count">{{ participants.length }} totalt</span>
       </div>
-      <div class="flex space-between" v-for="participant in participants">
-        <div class="flex">
-          <div>{{ participant.name }}</div>
-          <div class="chosenActivitiesLabel">{{ participant.activityOptionNames.join(', ') }}</div>
+
+      <div class="participants-list">
+        <div v-for="participant in participants" :key="participant.id" class="participant-item">
+          <div class="participant-info">
+            <span class="participant-name">{{ participant.name }}</span>
+            <span v-if="participant.activityOptionNames.length > 0" class="participant-options">
+              {{ participant.activityOptionNames.join(', ') }}
+            </span>
+          </div>
+          <span class="participant-phone">{{ participant.phoneNumber }}</span>
         </div>
-        <div>{{ participant.phoneNumber }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-#container {
-  width: 400px;
-  margin: 12px;
-}
-
-#header {
-  padding-bottom: 12px;
-}
-
-#activityName {
-  font-size: 24px;
-}
-
-#body {
-  padding-top: 6px;
-}
-
-#activityValues {
-  display: grid;
-  grid-template-columns: auto max-content;
-
-  padding-bottom: 12px;
-}
-
-#activityValues>div {
-  padding-bottom: 8px;
-}
-
-#inputs {
-  padding: 20px 0px 0px 0px;
-}
-
-#inputs>div {
-  display: grid;
-}
-
-.chosenActivitiesLabel {
-  padding-left: 12px;
-  font-size: 12px;
-  color: gray;
-  align-self: center;
-}
-
-.h-center {
-  align-items: center;
-}
-
-.flex {
+.loading-state {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
 }
 
-.space-between {
+.loading-text {
+  color: #666;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+  color: #333;
+}
+
+.admin-controls {
+  margin-bottom: 16px;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+.navigation {
+  display: flex;
   justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+
+.nav-btn {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.activity-name {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  color: #212529;
+}
+
+.participant-count {
+  background: #f8f9fa;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.activity-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 24px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.description {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  color: #495057;
+  line-height: 1.6;
+}
+
+.registration-form {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.options-group {
+  margin-bottom: 24px;
+}
+
+.options-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.option-label {
+  cursor: pointer;
+  color: #495057;
+}
+
+.submit-btn {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.submit-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.participants-section {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.participants-header h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 18px;
+}
+
+.total-count {
+  background: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participant-name {
+  font-weight: 500;
+  color: #495057;
+}
+
+.participant-options {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.participant-phone {
+  color: #495057;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .activity-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .activity-name {
+    font-size: 24px;
+  }
+
+  .activity-details {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 </style>
