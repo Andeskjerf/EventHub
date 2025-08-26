@@ -33,7 +33,12 @@ public class ActivityService {
     private ActivityRepo activityRepo;
 
     public Activity createActivity(Activity activity) throws AlreadyExistsException {
-        if (activityRepo.findByName(activity.getName()).isPresent()) {
+        Optional<Activity> existing = activityRepo.findByNameAndActive(activity.getName(), true);
+        // FIXME: ... maybe not ideal?
+        // we want to be able to create new activities with the same names
+        // as long as the other activities are not active, e.g deleted
+        // maybe not smart?
+        if (existing.isPresent()) {
             throw new AlreadyExistsException("activity exists");
         }
 
