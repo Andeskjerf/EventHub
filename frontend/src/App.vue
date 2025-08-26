@@ -230,5 +230,9 @@ const authed = computed(() => userModule.state.isAuthenticated);
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .app-main {
+    margin-top: 90px;
+  }
 }
 </style>
