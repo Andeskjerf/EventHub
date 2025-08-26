@@ -77,6 +77,16 @@ public class ActivityOrchestrationService {
         return savedActivity;
     }
 
+    public void deleteActivityFromInstanceId(UUID instanceId) {
+        ActivityInstance instance = activityInstanceService.getInstance(instanceId).orElseThrow();
+        Activity activity = instance.getActivity();
+
+        activity.setActive(false);
+        activityRepo.save(activity);
+
+        activityInstanceService.deleteFutureInstances(activity.getId());
+    }
+
     public List<ActivityInstance> getAllNextActiveInstances() {
         List<ActivityInstance> instances = new ArrayList<>();
         List<Activity> activeActivities = activityRepo.findAllByActive(true);

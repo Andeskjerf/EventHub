@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,6 @@ import sh.lmao.event_hub.dto.request.RegisterParticipantDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
-import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
 import sh.lmao.event_hub.services.ActivityInstanceService;
 import sh.lmao.event_hub.services.ActivityOrchestrationService;
@@ -86,6 +86,19 @@ public class ActivityController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "could not find activity to add participants to"));
+        }
+    }
+
+    @DeleteMapping("/{activityInstanceId}")
+    public ResponseEntity<Map<String, Object>> deleteActivity(
+            @PathVariable UUID activityInstanceId) {
+        try {
+            activityOrchestrationService.deleteActivityFromInstanceId(activityInstanceId);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "deleted", "data", ""));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "unable to delete activity"));
         }
     }
 

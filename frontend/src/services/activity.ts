@@ -63,4 +63,10 @@ export const activityService = {
 
 		return response.data;
 	},
+
+	async deleteActivity(instanceId: string) {
+		const response = await apiClient.delete(`/activity/${instanceId}`);
+
+		return response.data;
+	},
 };

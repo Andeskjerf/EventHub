@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
@@ -19,4 +20,7 @@ public interface ActivityInstanceRepo extends JpaRepository<ActivityInstance, UU
 
     Optional<ActivityInstance> findFirstByActivityAndEventDateAfterOrderByEventDate(Activity activity,
             ZonedDateTime currentDate);
+
+    @Transactional
+    void deleteByEventDateAfter(ZonedDateTime currentDate);
 }
