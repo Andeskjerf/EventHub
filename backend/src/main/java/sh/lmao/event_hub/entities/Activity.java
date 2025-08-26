@@ -62,7 +62,7 @@ public class Activity {
     private String meetLocation;
 
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
-    private String description;
+    private String description = "";
 
     // 0 for unlimited
     @Min(value = 0, message = "Max participants cannot be negative")
