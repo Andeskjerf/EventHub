@@ -19,6 +19,8 @@ const loading = ref(true)
 const name = ref("");
 const phone = ref("");
 
+const options = ref({})
+
 onMounted(async () => {
   await getActivityInfo()
   await getParticipantInfo()
@@ -80,6 +82,12 @@ async function submitHandler(e: Event) {
       <div>
         <label>Telefon</label>
         <input v-model="phone"></input>
+      </div>
+      <div>
+        <div v-for="opt in activity.options">
+          <input type="checkbox" :id="opt.id" />
+          <label :for="opt.id">{{ opt.name }}</label>
+        </div>
       </div>
       <button :disabled="name.length == 0">Meld meg på</button>
     </form>
