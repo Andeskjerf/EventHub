@@ -1,5 +1,6 @@
 package sh.lmao.event_hub.repositories;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,4 +10,5 @@ import sh.lmao.event_hub.entities.ActivityOption;
 
 @Repository
 public interface ActivityOptionRepo extends JpaRepository<ActivityOption, UUID> {
+    public List<ActivityOption> findAllByActivityId(UUID activityId);
 }

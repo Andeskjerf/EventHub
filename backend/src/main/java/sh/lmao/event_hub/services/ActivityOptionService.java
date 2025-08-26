@@ -1,6 +1,7 @@
 package sh.lmao.event_hub.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,5 +23,9 @@ public class ActivityOptionService {
             activityOption.setActivity(activity);
             activityOptionRepo.save(activityOption);
         }
+    }
+
+    public List<ActivityOption> getOptions(UUID activityId) {
+        return activityOptionRepo.findAllByActivityId(activityId);
     }
 }

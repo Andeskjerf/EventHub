@@ -1,12 +1,15 @@
 package sh.lmao.event_hub.dto.response;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sh.lmao.event_hub.entities.ActivityOption;
 
 @Getter
 @Setter
@@ -40,4 +43,6 @@ public class ActivityInstanceDTO {
     private int maxParticipants;
 
     private int repeatInterval;
+
+    private List<ActivityOption> options = new ArrayList<>();
 }

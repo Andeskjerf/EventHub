@@ -23,6 +23,7 @@ import sh.lmao.event_hub.dto.request.CreateActivityDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
+import sh.lmao.event_hub.entities.ActivityOption;
 import sh.lmao.event_hub.entities.Participant;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
 import sh.lmao.event_hub.exceptions.NotFoundException;
@@ -103,7 +104,10 @@ public class ActivityOrchestrationService {
         List<Participant> participants = participantService
                 .getAllParticipantsForActivityInstance(instance.get().getId());
 
-        return Optional.of(activityMapper.toDashboardInstanceDto(activity.get(), instance.get(), participants.size()));
+        List<ActivityOption> options = activityOptionService.getOptions(activity.get().getId());
+
+        return Optional.of(
+                activityMapper.toDashboardInstanceDto(activity.get(), instance.get(), options, participants.size()));
     }
 
     // this is not very DRY
@@ -117,7 +121,8 @@ public class ActivityOrchestrationService {
                     .findFirstByActivityAndEventDateAfterOrderByEventDate(activity, now);
             if (instance.isPresent()) {
                 List<Participant> participants = participantRepo.findByActivityId(instance.get().getId());
-                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get(), participants.size()));
+                List<ActivityOption> options = activityOptionService.getOptions(activity.getId());
+                dtos.add(activityMapper.toDashboardInstanceDto(activity, instance.get(), options, participants.size()));
             }
         }
 

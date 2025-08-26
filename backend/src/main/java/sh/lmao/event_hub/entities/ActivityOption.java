@@ -2,6 +2,9 @@ package sh.lmao.event_hub.entities;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +32,11 @@ public class ActivityOption {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
+    @JsonIgnore
     private Activity activity;
+
+    @Column(name = "activity_id", insertable = false, updatable = false)
+    private UUID activityId;
 
     private String name;
 }
