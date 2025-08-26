@@ -47,7 +47,7 @@ export async function register(
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to register: ${e}`);
-			return null;
+			throw e.response.data;
 		});
 
 	if (response?.data?.[STORAGE_KEYS.USERNAME]) {
@@ -63,6 +63,7 @@ export async function logout() {
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to logout: ${e}`);
+			throw e.response.data;
 		});
 
 	clearAuth();
