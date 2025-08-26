@@ -60,7 +60,7 @@ async function submitHandler(e: Event) {
     activityInstanceId: activity.value.instanceId,
     name: name.value,
     phoneNumber: phone.value,
-    selectedOptions: options.value
+    activityOptionIds: options.value
   }
 
   await activityService.registerParticipant(participant)
