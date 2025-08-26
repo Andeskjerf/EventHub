@@ -10,12 +10,12 @@ const email = ref("")
 const username = ref("")
 const password = ref("")
 const loading = ref(false)
-const error = ref("")
+const error = ref<string[]>([])
 
 async function handleLogin(event: Event) {
   event.preventDefault()
   loading.value = true
-  error.value = ""
+  error.value = []
 
   try {
     const result = await login(username.value, password.value)
@@ -23,7 +23,7 @@ async function handleLogin(event: Event) {
       router.back()
     }
   } catch (err) {
-    error.value = "Innlogging feilet. Sjekk brukernavn og passord."
+    error.value.push("Innlogging feilet. Sjekk brukernavn og passord.")
   } finally {
     loading.value = false
   }
@@ -32,7 +32,7 @@ async function handleLogin(event: Event) {
 async function handleRegister(event: Event) {
   event.preventDefault()
   loading.value = true
-  error.value = ""
+  error.value = []
 
   try {
     const result = await register(email.value, username.value, password.value)
@@ -40,8 +40,10 @@ async function handleRegister(event: Event) {
       router.back()
     }
   } catch (err) {
-    console.log(err)
-    error.value = `Registrering feilet. Prøv igjen.`
+    error.value.push(`Registrering feilet. Prøv igjen.`)
+    Object.values(err.errors).forEach((e) => {
+      error.value.push(e)
+    })
   } finally {
     loading.value = false
   }
@@ -49,7 +51,7 @@ async function handleRegister(event: Event) {
 
 function toggleForm() {
   showLogin.value = !showLogin.value
-  error.value = ""
+  error.value = []
   // Clear form when switching
   email.value = ""
   username.value = ""
@@ -67,8 +69,8 @@ function toggleForm() {
         </p>
       </div>
 
-      <div v-if="error" class="error-message">
-        {{ error }}
+      <div v-if="error.length > 0" class="error-message-background">
+        <div class="error-message" v-for="e in error">{{ e }}</div>
       </div>
 
       <form @submit="handleLogin" v-if="showLogin" class="auth-form">
@@ -163,13 +165,18 @@ function toggleForm() {
   font-size: 14px;
 }
 
-.error-message {
+.error-message-background {
   background: #f8d7da;
   color: #721c24;
   padding: 12px 16px;
   border-radius: 4px;
   margin-bottom: 24px;
   border: 1px solid #f5c6cb;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #721c24;
   font-size: 14px;
 }
 
