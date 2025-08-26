@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 
 import jakarta.validation.Valid;
+import sh.lmao.event_hub.dto.request.CreateActivityDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
@@ -58,10 +59,10 @@ public class ActivityController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody Activity activity) {
+    public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody CreateActivityDTO activity) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("activity", activityService.createActivity(activity)));
+                    .body(Map.of("activity", activityOrchestrationService.createActivity(activity)));
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "activity already exists"));

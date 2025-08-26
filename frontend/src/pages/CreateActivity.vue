@@ -33,6 +33,7 @@ async function submitActivity(e: Event) {
     description: description.value,
     maxParticipants: maxParticipants.value,
     repeatInterval: repeatInterval.value,
+    options: activityOptions.value,
   }
 
   const result = await activityService.createActivity(activity)

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import sh.lmao.event_hub.dto.request.ActivityDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
 import sh.lmao.event_hub.entities.Participant;
@@ -29,9 +30,6 @@ public class ActivityService {
     private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
 
     @Autowired
-    private ActivityInstanceService activityInstanceService;
-
-    @Autowired
     private ActivityRepo activityRepo;
 
     public Activity createActivity(Activity activity) throws AlreadyExistsException {
@@ -40,13 +38,7 @@ public class ActivityService {
         }
 
         Activity savedActivity = activityRepo.save(activity);
-
-        // there will always be at least one instance at the initial date
-        activityInstanceService.createInstance(savedActivity, savedActivity.getEventDate());
-        // ensure there are instances into the future
-        activityInstanceService.initFuturePopulating(savedActivity);
-
-        return savedActivity;
+        return activity;
     }
 
     public Optional<Activity> getActivity(UUID id) {

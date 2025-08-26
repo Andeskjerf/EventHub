@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import sh.lmao.event_hub.dto.request.ActivityDTO;
+import sh.lmao.event_hub.dto.request.CreateActivityDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
@@ -26,5 +28,18 @@ public class ActivityMapper {
         dto.setRepeatInterval(activity.getRepeatInterval());
         dto.setParticipants(participantCount);
         return dto;
+    }
+
+    public Activity fromCreateActivityDtoToActivity(CreateActivityDTO createActivityDTO) {
+        Activity activity = new Activity();
+        activity.setName(createActivityDTO.getName());
+        activity.setEventDate(createActivityDTO.getEventDate());
+        activity.setRegisterBefore(createActivityDTO.getRegisterBefore());
+        activity.setLocation(createActivityDTO.getLocation());
+        activity.setMeetLocation(createActivityDTO.getMeetLocation());
+        activity.setDescription(createActivityDTO.getDescription());
+        activity.setMaxParticipants(createActivityDTO.getMaxParticipants());
+        activity.setRepeatInterval(createActivityDTO.getRepeatInterval());
+        return activity;
     }
 }

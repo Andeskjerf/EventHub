@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import sh.lmao.event_hub.dto.mappers.ActivityMapper;
+import sh.lmao.event_hub.dto.request.ActivityDTO;
+import sh.lmao.event_hub.dto.request.CreateActivityDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
 import sh.lmao.event_hub.entities.ActivityInstance;
@@ -33,7 +35,7 @@ import sh.lmao.event_hub.repositories.ParticipantRepo;
 @Service
 public class ActivityOrchestrationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivityOrchestrationService.class);
 
     @Autowired
     private ActivityService activityService;
@@ -43,6 +45,9 @@ public class ActivityOrchestrationService {
 
     @Autowired
     private ParticipantService participantService;
+
+    @Autowired
+    private ActivityOptionService activityOptionService;
 
     @Autowired
     private ActivityRepo activityRepo;
@@ -55,6 +60,20 @@ public class ActivityOrchestrationService {
 
     @Autowired
     private ActivityMapper activityMapper;
+
+    public Activity createActivity(CreateActivityDTO createActivityDto) throws AlreadyExistsException {
+        Activity activity = activityMapper.fromCreateActivityDtoToActivity(createActivityDto);
+        Activity savedActivity = activityService.createActivity(activity);
+
+        // there will always be at least one instance at the initial date
+        activityInstanceService.createInstance(savedActivity, savedActivity.getEventDate());
+        // ensure there are instances into the future
+        activityInstanceService.initFuturePopulating(savedActivity);
+
+        activityOptionService.createOptionsFromList(createActivityDto.getOptions(), activity);
+
+        return savedActivity;
+    }
 
     public List<ActivityInstance> getAllNextActiveInstances() {
         List<ActivityInstance> instances = new ArrayList<>();
