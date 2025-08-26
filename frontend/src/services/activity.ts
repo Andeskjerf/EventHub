@@ -38,6 +38,40 @@ export const activityService = {
 		}
 	},
 
+	async getNextActivityInfo(instanceId: string) {
+		try {
+			const response = await apiClient.get(`/activity/${instanceId}/next`);
+			return {
+				success: true,
+				data: response.data,
+				message: "activity gotten",
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error.response?.data?.error || "failed to get activity",
+			};
+		}
+	},
+
+	async getPreviousActivityInfo(instanceId: string) {
+		try {
+			const response = await apiClient.get(`/activity/${instanceId}/previous`);
+			return {
+				success: true,
+				data: response.data,
+				message: "activity gotten",
+			};
+		} catch (error) {
+			return {
+				success: false,
+				data: null,
+				message: error.response?.data?.error || "failed to get activity",
+			};
+		}
+	},
+
 	// TODO: handle errors
 	async getNextInstanceOfAllActiveActivities(): Promise<
 		Array<ActivityInstance>

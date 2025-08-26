@@ -60,6 +60,30 @@ public class ActivityController {
                 .body(Map.of("activity", dto.get()));
     }
 
+    @GetMapping("/{activityInstanceId}/previous")
+    public ResponseEntity<Map<String, Object>> getPreviousActivityDTO(@PathVariable UUID activityInstanceId) {
+        Optional<ActivityInstanceDTO> dto = activityOrchestrationService
+                .getPreviousActivityInstanceDTOFromId(activityInstanceId);
+        if (dto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "couldn't find activity instance with given ID"));
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("activity", dto.get()));
+    }
+
+    @GetMapping("/{activityInstanceId}/next")
+    public ResponseEntity<Map<String, Object>> getNextActivityDTO(@PathVariable UUID activityInstanceId) {
+        Optional<ActivityInstanceDTO> dto = activityOrchestrationService
+                .getNextActivityInstanceDTOFromId(activityInstanceId);
+        if (dto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "couldn't find activity instance with given ID"));
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("activity", dto.get()));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody CreateActivityDTO activity) {
         try {

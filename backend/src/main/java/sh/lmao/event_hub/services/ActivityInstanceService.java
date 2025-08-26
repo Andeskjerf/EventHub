@@ -70,6 +70,16 @@ public class ActivityInstanceService {
         return activityInstanceRepo.findById(activityInstanceId);
     }
 
+    public Optional<ActivityInstance> getPreviousInstance(UUID activityInstanceId) {
+        ActivityInstance instance = activityInstanceRepo.findById(activityInstanceId).orElseThrow();
+        return activityInstanceRepo.findFirstByEventDateBeforeOrderByEventDateDesc(instance.getEventDate());
+    }
+
+    public Optional<ActivityInstance> getNextInstance(UUID activityInstanceId) {
+        ActivityInstance instance = activityInstanceRepo.findById(activityInstanceId).orElseThrow();
+        return activityInstanceRepo.findFirstByEventDateAfterOrderByEventDate(instance.getEventDate());
+    }
+
     @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
     private void scheduledFutureInstancePopulator() {
         for (Activity activity : activityRepo.findAll()) {

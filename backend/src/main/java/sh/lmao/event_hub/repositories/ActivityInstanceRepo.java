@@ -23,4 +23,8 @@ public interface ActivityInstanceRepo extends JpaRepository<ActivityInstance, UU
 
     @Transactional
     void deleteByEventDateAfter(ZonedDateTime currentDate);
+
+    Optional<ActivityInstance> findFirstByEventDateBeforeOrderByEventDateDesc(ZonedDateTime currentDate);
+
+    Optional<ActivityInstance> findFirstByEventDateAfterOrderByEventDate(ZonedDateTime currentDate);
 }
