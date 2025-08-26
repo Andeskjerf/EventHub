@@ -334,11 +334,12 @@ function setId(instanceId: string) {
 
 .form-group input {
   width: 100%;
-  padding: 10px 0px;
+  padding: 10px 16px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 16px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
