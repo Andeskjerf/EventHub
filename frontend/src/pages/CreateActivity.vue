@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ActivityOption from '@/components/ActivityOption.vue';
 import type { CreateActivityRequest } from '@/models/create_activity_request';
 import { activityService } from '@/services/activity';
 import { ref } from 'vue';
@@ -14,6 +15,8 @@ const meetLocation = ref("Golfklubb parkering")
 const description = ref("Hyggelig golf treff med mulighet for spill på bane og range")
 const maxParticipants = ref(100)
 const repeatInterval = ref(7)
+
+const extraOptionValue = ref<string>("")
 
 const activityOptions = ref<string[]>([])
 
@@ -39,12 +42,24 @@ async function submitActivity(e: Event) {
     error.value = result.message
   }
 }
+
+function addActivityOption() {
+  if (extraOptionValue.value.length > 0) {
+    activityOptions.value.push(extraOptionValue.value)
+    extraOptionValue.value = ""
+  }
+}
+
+function removeOption(option: string) {
+  activityOptions.value = activityOptions.value.filter((val) => val != option)
+}
 </script>
 
 <template>
   <h1>Create activity</h1>
-  <h3 v-if="error.length > 0">ERROR: {{ error }}</h3>
-  <form @submit="submitActivity">
+  <div id="container">
+
+    <h3 v-if="error.length > 0">ERROR: {{ error }}</h3>
     <div class="label">Aktivitet navn</div>
     <input v-model="name" placeholder="name" />
     <div class="label">Tid og dato</div>
@@ -61,12 +76,21 @@ async function submitActivity(e: Event) {
     <input v-model="repeatInterval" placeholder="when the activity should repeat, in days" />
     <div class="label">Beskrivelse</div>
     <textarea rows="5" v-model="description" placeholder="a description for the activity" />
-    <button>Skap aktivitet</button>
-  </form>
+    <div class="flex">
+      <div>
+        <div class="label">Ekstra valg</div>
+        <input v-model="extraOptionValue" @keyup.enter="addActivityOption" placeholder="name of extra option" />
+      </div>
+      <div>
+        <ActivityOption @close="removeOption" v-for="option in activityOptions" :value="option" />
+      </div>
+    </div>
+    <button @click="submitActivity">Skap aktivitet</button>
+  </div>
 </template>
 
 <style scoped>
-form {
+#container {
   display: flex;
   flex-direction: column;
 }
@@ -77,5 +101,10 @@ form {
 
   padding-top: 10px;
   padding-bottom: 3px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
