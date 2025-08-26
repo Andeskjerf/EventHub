@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.dto.request.CreateActivityDTO;
+import sh.lmao.event_hub.dto.request.ParticipantDTO;
 import sh.lmao.event_hub.dto.request.RegisterParticipantDTO;
 import sh.lmao.event_hub.dto.response.ActivityInstanceDTO;
 import sh.lmao.event_hub.entities.Activity;
@@ -89,7 +90,7 @@ public class ActivityController {
     }
 
     @GetMapping("/{activityId}/participants")
-    public List<Participant> getParticipants(
+    public List<ParticipantDTO> getParticipants(
             @PathVariable UUID activityId) {
         return participantService.getAllParticipantsForActivityInstance(activityId);
     }

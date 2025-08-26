@@ -1,6 +1,8 @@
 package sh.lmao.event_hub.services;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,5 +31,12 @@ public class ParticipantActivityOptionService {
         option.setParticipantId(participantId);
         option.setActivityOptionId(optionId);
         return participantActivityOptionRepo.save(option);
+    }
+
+    public List<UUID> getActivityOptionIdsForParticipant(UUID participantId) {
+        List<ParticipantActivityOption> relations = participantActivityOptionRepo.findAllByParticipantId(participantId);
+        return relations.stream()
+                .map(relation -> relation.getActivityOptionId())
+                .collect(Collectors.toList());
     }
 }

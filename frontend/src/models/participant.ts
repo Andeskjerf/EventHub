@@ -1,6 +1,7 @@
 export interface Participant {
 	id: string;
-	activityId: string;
+	activityInstanceId: string;
 	name: string;
 	phoneNumber: string;
+	activityOptionNames: string[];
 }

@@ -10,5 +10,5 @@ import sh.lmao.event_hub.entities.Participant;
 
 @Repository
 public interface ParticipantRepo extends JpaRepository<Participant, UUID> {
-    List<Participant> findByActivityId(UUID activityId);
+    List<Participant> findAllByActivityId(UUID activityId);
 }

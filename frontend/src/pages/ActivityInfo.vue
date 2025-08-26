@@ -7,12 +7,13 @@ import { activityUtils } from '@/utils/activity_utils';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { userModule } from '@/stores/auth/module';
+import type { Participant } from '@/models/participant';
 
 const route = useRoute()
 const router = useRouter()
 
 const activity = ref()
-const participants = ref([])
+const participants = ref<Participant[]>([])
 const error = ref("")
 const loading = ref(true)
 
@@ -105,7 +106,10 @@ async function submitHandler(e: Event) {
     <div v-if="participants.length > 0">
       <h2 id="participantsTitle">Påmeldte</h2>
       <div class="flex space-between" v-for="participant in participants">
-        <div>{{ participant.name }}</div>
+        <div class="flex">
+          <div>{{ participant.name }}</div>
+          <div class="chosenActivitiesLabel">{{ participant.activityOptionNames.join(', ') }}</div>
+        </div>
         <div>{{ participant.phoneNumber }}</div>
       </div>
     </div>
@@ -151,6 +155,13 @@ async function submitHandler(e: Event) {
 
 #participantsTitle {
   padding-bottom: 12px;
+}
+
+.chosenActivitiesLabel {
+  padding-left: 12px;
+  font-size: 12px;
+  color: gray;
+  align-self: center;
 }
 
 .h-center {
