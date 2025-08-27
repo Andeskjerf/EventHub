@@ -7,7 +7,7 @@ spring:
   jpa:
     show-sql: true
     database-platform: org.hibernate.community.dialect.SQLiteDialect
-    hibernate.ddl-auto: create-drop
+    hibernate.ddl-auto: create
 
 server:
   port: 8090
