@@ -3,9 +3,11 @@ package sh.lmao.event_hub.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sh.lmao.event_hub.dto.mappers.ParticipantMapper;
@@ -29,6 +31,13 @@ public class ParticipantService {
 
     @Autowired
     private ParticipantMapper participantMapper;
+
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
+    private void scheduleAnonymizeParticipants() {
+        // for (Activity activity : activityRepo.findAll()) {
+        //     initFuturePopulating(activity);
+        // }
+    }
 
     public List<ParticipantDTO> getAllParticipantsForActivityInstance(UUID activityInstanceId) {
         List<Participant> participants = participantRepo.findAllByActivityId(activityInstanceId);

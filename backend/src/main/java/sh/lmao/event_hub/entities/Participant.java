@@ -1,6 +1,9 @@
 package sh.lmao.event_hub.entities;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
+
+import org.springframework.data.annotation.CreatedDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -41,10 +44,16 @@ public class Participant {
     @Column(name = "activity_id", insertable = false, updatable = false)
     private UUID activityId;
 
+    private boolean anonymized = false;
+
     @NotBlank(message = "Name is required")
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private String name;
 
     @Pattern(regexp = "^\\+?[0-9\\s\\-]{0,20}$", message = "Phone number can contain digits, spaces, dashes, and optional + prefix")
     private String phoneNumber;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private ZonedDateTime createdAt;
 }
