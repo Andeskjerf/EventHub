@@ -9,6 +9,7 @@ const activities = ref<ActivityInstance[]>([]);
 
 onMounted(async () => {
   activities.value = await activityService.getNextInstanceOfAllActiveActivities()
+  activities.value.sort((a, b) => a.eventDate.localeCompare(b.eventDate))
   loading.value = false
 })
 
