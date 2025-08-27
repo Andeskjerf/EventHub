@@ -47,7 +47,7 @@ export async function register(
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to register: ${e}`);
-			throw e.response.data;
+			throw e.response;
 		});
 
 	if (response?.data?.[STORAGE_KEYS.USERNAME]) {
