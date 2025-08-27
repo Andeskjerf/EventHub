@@ -30,6 +30,7 @@ public class ParticipantMapper {
         ParticipantDTO dto = new ParticipantDTO();
         dto.setActivityInstanceId(participant.getActivityId());
         dto.setName(participant.getName());
+        dto.setAnonymized(participant.isAnonymized());
         dto.setPhoneNumber(participant.getPhoneNumber());
         dto.setActivityOptionNames(options.stream().map(opt -> opt.getName()).collect(Collectors.toList()));
         return dto;

@@ -17,6 +17,8 @@ public class ParticipantDTO {
 
     private UUID activityInstanceId;
 
+    private boolean anonymized;
+
     private String name;
 
     private String phoneNumber;

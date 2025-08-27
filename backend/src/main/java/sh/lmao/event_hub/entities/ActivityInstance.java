@@ -1,13 +1,16 @@
 package sh.lmao.event_hub.entities;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +26,7 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "activity_instances")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @ToString
@@ -45,8 +49,8 @@ public class ActivityInstance {
 
     @CreatedDate
     @Column(updatable = false)
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private ZonedDateTime lastModified;
+    private LocalDateTime lastModified;
 }
