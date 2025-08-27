@@ -383,6 +383,7 @@ function setId(instanceId: string) {
 
 .option-label {
   cursor: pointer;
+  user-select: none;
   color: #495057;
 }
 
