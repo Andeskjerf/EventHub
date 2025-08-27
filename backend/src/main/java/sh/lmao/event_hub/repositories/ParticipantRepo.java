@@ -1,6 +1,6 @@
 package sh.lmao.event_hub.repositories;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,5 +13,5 @@ import sh.lmao.event_hub.entities.Participant;
 public interface ParticipantRepo extends JpaRepository<Participant, UUID> {
     List<Participant> findAllByActivityId(UUID activityId);
 
-    List<Participant> findByCreatedAtBefore(ZonedDateTime time);
+    List<Participant> findByCreatedAtBeforeAndAnonymizedFalse(LocalDateTime time);
 }
