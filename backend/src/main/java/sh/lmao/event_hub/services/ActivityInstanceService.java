@@ -65,7 +65,7 @@ public class ActivityInstanceService {
     }
 
     public void deleteFutureInstances(UUID activityId) {
-        activityInstanceRepo.deleteByEventDateAfter(ZonedDateTime.now());
+        activityInstanceRepo.deleteByEventDateAfterAndActivityId(ZonedDateTime.now(), activityId);
     }
 
     public Optional<ActivityInstance> getInstance(UUID activityInstanceId) {
@@ -74,12 +74,16 @@ public class ActivityInstanceService {
 
     public Optional<ActivityInstance> getPreviousInstance(UUID activityInstanceId) {
         ActivityInstance instance = activityInstanceRepo.findById(activityInstanceId).orElseThrow();
-        return activityInstanceRepo.findFirstByEventDateBeforeOrderByEventDateDesc(instance.getEventDate());
+        return activityInstanceRepo.findFirstByEventDateBeforeAndActivityIdOrderByEventDateDesc(
+                instance.getEventDate(),
+                instance.getActivityId());
     }
 
     public Optional<ActivityInstance> getNextInstance(UUID activityInstanceId) {
         ActivityInstance instance = activityInstanceRepo.findById(activityInstanceId).orElseThrow();
-        return activityInstanceRepo.findFirstByEventDateAfterOrderByEventDate(instance.getEventDate());
+        return activityInstanceRepo.findFirstByEventDateAfterAndActivityIdOrderByEventDateAsc(
+                instance.getEventDate(),
+                instance.getActivityId());
     }
 
     @Scheduled(fixedRate = 7, timeUnit = TimeUnit.DAYS)
