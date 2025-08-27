@@ -140,7 +140,7 @@ function setId(instanceId: string) {
       <LabelValue label="Tid" :value="activityUtils.formatEventTime(activity.eventDate)" />
       <LabelValue label="Dag" :value="activityUtils.formatEventDate(activity.eventDate)" />
       <LabelValue label="Sted" :value="activity.location" />
-      <LabelValue label="Oppmøte" :value="activity.meetLocation" />
+      <LabelValue v-if="activity.meetLocation.length > 0" label="Oppmøte" :value="activity.meetLocation" />
     </div>
 
     <div class="description">
