@@ -1,11 +1,15 @@
 package sh.lmao.event_hub.services;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,8 @@ import sh.lmao.event_hub.repositories.ParticipantRepo;
 @Service
 public class ParticipantService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
+
     @Autowired
     private ParticipantRepo participantRepo;
 
@@ -33,10 +39,21 @@ public class ParticipantService {
     private ParticipantMapper participantMapper;
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
-    private void scheduleAnonymizeParticipants() {
-        // for (Activity activity : activityRepo.findAll()) {
-        //     initFuturePopulating(activity);
-        // }
+    private void anonymizeParticipants() {
+        final int anonymizePastDays = 30;
+        LocalDateTime now = LocalDateTime.now();
+        List<Participant> toBeAnonymized = participantRepo
+                .findByCreatedAtBeforeAndAnonymizedFalse(now.plusDays(-anonymizePastDays));
+        for (Participant participant : toBeAnonymized) {
+            participant.setName("Anonym");
+            participant.setPhoneNumber("");
+            participant.setAnonymized(true);
+            participantRepo.save(participant);
+        }
+
+        if (toBeAnonymized.size() > 0) {
+            logger.info("Anonymized {} participants", toBeAnonymized.size());
+        }
     }
 
     public List<ParticipantDTO> getAllParticipantsForActivityInstance(UUID activityInstanceId) {
