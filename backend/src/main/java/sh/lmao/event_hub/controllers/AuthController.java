@@ -5,6 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -26,12 +27,20 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    @Value("${REGISTRATION_ENABLED:false}")
+    private boolean registrationEnabled;
+
     @Autowired
     private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerHandler(
             @Valid @RequestBody User user, HttpServletResponse response) {
+        if (!registrationEnabled) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "registration is currently disabled"));
+        }
+
         try {
             String token = authService.registerUser(user);
             response.addCookie(authService.createCookie(token));

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { login, register } from '@/services/authentication'
+import { login, register, REGISTRATION_ENABLED } from '@/services/authentication'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -48,10 +48,21 @@ async function handleRegister(event: Event) {
       router.back()
     }
   } catch (err) {
-    error.value.push(`Registrering feilet. Prøv igjen.`)
-    Object.values(err.errors).forEach((e) => {
-      error.value.push(e)
-    })
+    error.value.push(`Registrering feilet.`)
+    switch (err.status) {
+      case 409:
+        error.value.push("E-post / brukernavn er tatt.");
+        break;
+      case 403:
+        error.value.push("Nye registreringer er deaktivert.");
+        break;
+      case 400:
+        Object.values(err.data.errors).forEach((e) => error.value.push(e))
+        break;
+      case 500:
+        error.value.push("Ukjent feil oppstått! Ta kontakt med administrator.");
+        break;
+    }
   } finally {
     loading.value = false
   }
@@ -123,7 +134,7 @@ function toggleForm() {
         </button>
       </form>
 
-      <div class="auth-toggle">
+      <div class="auth-toggle" v-if="showLogin && REGISTRATION_ENABLED">
         <p>
           {{ showLogin ? 'Har du ikke en konto?' : 'Har du allerede en konto?' }}
           <button @click="toggleForm" class="toggle-btn" :disabled="loading">
