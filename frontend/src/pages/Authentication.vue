@@ -22,8 +22,17 @@ async function handleLogin(event: Event) {
     if (result != undefined) {
       router.back()
     }
+    console.log("did we get here")
   } catch (err) {
-    error.value.push("Innlogging feilet. Sjekk brukernavn og passord.")
+    error.value.push("Innlogging feilet.")
+    switch (err.status) {
+      case 401:
+        error.value.push("Sjekk brukernavn og passord.");
+        break;
+      case 500:
+        error.value.push("Ukjent feil oppstått! Ta kontakt med administrator.");
+        break;
+    }
   } finally {
     loading.value = false
   }

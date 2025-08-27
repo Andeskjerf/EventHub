@@ -21,7 +21,7 @@ export async function login(
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to login: ${e}`);
-			return null;
+			throw e.response;
 		});
 
 	if (response?.data?.[STORAGE_KEYS.USERNAME]) {
