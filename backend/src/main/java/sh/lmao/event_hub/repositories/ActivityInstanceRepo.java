@@ -22,7 +22,7 @@ public interface ActivityInstanceRepo extends JpaRepository<ActivityInstance, UU
             ZonedDateTime currentDate);
 
     @Transactional
-    void deleteByEventDateAfter(ZonedDateTime currentDate);
+    void deleteByEventDateAfterAndActivityId(ZonedDateTime currentDate, UUID activityId);
 
     Optional<ActivityInstance> findFirstByEventDateBeforeAndActivityIdOrderByEventDateDesc(
             ZonedDateTime currentDate,
