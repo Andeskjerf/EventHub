@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class ParticipantService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivityService.class);
 
+    @Value("${ANONYMIZE_PAST_DAYS:30}")
+    private int anonymizePastDays;
+
     @Autowired
     private ParticipantRepo participantRepo;
 
@@ -40,7 +44,6 @@ public class ParticipantService {
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
     private void anonymizeParticipants() {
-        final int anonymizePastDays = 30;
         LocalDateTime now = LocalDateTime.now();
         List<Participant> toBeAnonymized = participantRepo
                 .findByCreatedAtBeforeAndAnonymizedFalse(now.plusDays(-anonymizePastDays));
