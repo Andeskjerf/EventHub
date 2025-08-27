@@ -53,7 +53,12 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "login successful", "username", body.getUsername()));
         } catch (AuthenticationException authExc) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "login failed"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "incorrect username / password"));
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "login failed for unknown reason"));
         }
     }
 
