@@ -8,6 +8,8 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { userModule } from '@/stores/auth/module';
 import type { Participant } from '@/models/participant';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faGhost } from '@fortawesome/free-solid-svg-icons';
 
 const route = useRoute()
 const router = useRouter()
@@ -182,7 +184,10 @@ function setId(instanceId: string) {
       <div class="participants-list">
         <div v-for="participant in participants" :key="participant.id" class="participant-item">
           <div class="participant-info">
-            <span class="participant-name">{{ participant.name }}</span>
+            <div>
+              <FontAwesomeIcon class="participant-anonymized" v-if="participant.anonymized" :icon="faGhost" />
+              <span class="participant-name">{{ participant.name }}</span>
+            </div>
             <span v-if="participant.activityOptionNames.length > 0" class="participant-options">
               {{ participant.activityOptionNames.join(', ') }}
             </span>
@@ -447,6 +452,11 @@ function setId(instanceId: string) {
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid #f8f9fa;
+}
+
+.participant-anonymized {
+  color: gray;
+  padding-right: 6px;
 }
 
 .participant-item:last-child {
