@@ -22,7 +22,6 @@ async function handleLogin(event: Event) {
     if (result != undefined) {
       router.back()
     }
-    console.log("did we get here")
   } catch (err) {
     error.value.push("Innlogging feilet.")
     switch (err.status) {
