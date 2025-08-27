@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { login, register } from '@/services/authentication'
+import { login, register, REGISTRATION_ENABLED } from '@/services/authentication'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -134,7 +134,7 @@ function toggleForm() {
         </button>
       </form>
 
-      <div class="auth-toggle">
+      <div class="auth-toggle" v-if="showLogin && REGISTRATION_ENABLED">
         <p>
           {{ showLogin ? 'Har du ikke en konto?' : 'Har du allerede en konto?' }}
           <button @click="toggleForm" class="toggle-btn" :disabled="loading">
