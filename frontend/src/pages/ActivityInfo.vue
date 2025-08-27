@@ -67,7 +67,7 @@ async function getPreviousActivityInfo() {
 }
 
 async function getParticipantInfo() {
-  if (!userModule.state.isAuthenticated) {
+  if (!userModule.state.isAuthenticated || error.value.length > 0) {
     return
   }
 
@@ -81,7 +81,6 @@ function onOptionToggled(e: Event) {
   } else {
     options.value.push(id)
   }
-  console.log(options.value)
 }
 
 async function submitHandler(e: Event) {
@@ -114,13 +113,13 @@ function setId(instanceId: string) {
     <div class="loading-text">Laster...</div>
   </div>
 
-  <div v-else class="container">
+  <div v-if="error.length != 0" class="error-message">
+    Feil: {{ error }}
+  </div>
+
+  <div v-if="!loading && error.length == 0" class="container">
     <div v-if="userModule.state.isAuthenticated" class="admin-controls">
       <button @click="deleteHandler" class="delete-btn">Slett aktivitet</button>
-    </div>
-
-    <div v-if="error.length != 0" class="error-message">
-      Feil: {{ error }}
     </div>
 
     <div class="navigation">
