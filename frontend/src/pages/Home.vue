@@ -17,7 +17,7 @@ onMounted(async () => {
 
 <template>
   <h1 v-if="loading"></h1>
-  <div v-if="activities.length == 0" class="background text-align-center">
+  <div v-if="!loading && activities.length == 0" class="background text-align-center">
     Ingen aktiviteter er lagt til
   </div>
   <div v-else id="activityContainer">
