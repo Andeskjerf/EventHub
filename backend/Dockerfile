@@ -15,5 +15,5 @@ RUN gradle clean build -x test
 FROM openjdk:21-slim
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
-EXPOSE 8080
+EXPOSE 8090
 ENTRYPOINT ["java", "-jar", "app.jar"]

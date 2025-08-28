@@ -7,7 +7,7 @@ import { clearAuth, STORAGE_KEYS, setUsername } from "./storage";
 
 const API_ENDPOINT_BASE: string = "/api/auth";
 export const REGISTRATION_ENABLED: boolean =
-	import.meta.env.REGISTRATION_ENABLED ?? false;
+	import.meta.env.VITE_REGISTRATION_ENABLED ?? false;
 
 export async function login(
 	username: string,
