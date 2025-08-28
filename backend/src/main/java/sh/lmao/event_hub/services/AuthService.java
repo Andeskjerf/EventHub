@@ -1,5 +1,8 @@
 package sh.lmao.event_hub.services;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,9 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.Cookie;
+import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
 import sh.lmao.event_hub.models.LoginCreds;
+import sh.lmao.event_hub.repositories.RefreshTokenRepo;
 import sh.lmao.event_hub.repositories.UserRepo;
 import sh.lmao.event_hub.security.JWTUtil;
 
@@ -21,6 +26,9 @@ public class AuthService {
     private UserRepo userRepo;
 
     @Autowired
+    private RefreshTokenRepo refreshTokenRepo;
+
+    @Autowired
     private JWTUtil jwtUtil;
 
     @Autowired
@@ -29,7 +37,7 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String registerUser(User user) throws AlreadyExistsException {
+    public User registerUser(User user) throws AlreadyExistsException {
         if (userRepo.findByUsername(user.getUsername()).isPresent()
                 || userRepo.findByEmail(user.getEmail()).isPresent()) {
             throw new AlreadyExistsException("user already exists");
@@ -42,7 +50,7 @@ public class AuthService {
         return jwtUtil.generateToken(user.getUsername());
     }
 
-    public String loginUser(LoginCreds creds) throws AuthenticationException {
+    public User loginUser(LoginCreds creds) throws AuthenticationException {
         UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
                 creds.getUsername(), creds.getPassword());
         authenticationManager.authenticate(authInputToken);
@@ -64,5 +72,13 @@ public class AuthService {
         jwtCookie.setSecure(false); // FIXME: set to true when in production!
         jwtCookie.setMaxAge(token.length() != 0 ? (int) JWTUtil.tokenExpiration : 0);
         return jwtCookie;
+    }
+
+    private RefreshToken createRefreshToken(UUID userId) {
+        RefreshToken token = new RefreshToken();
+        token.setToken(UUID.randomUUID().toString());
+        token.setUser(userRepo.getReferenceById(userId));
+        token.setExpiresAt(LocalDateTime.now().plusDays(7));
+        return refreshTokenRepo.save(token);
     }
 }
