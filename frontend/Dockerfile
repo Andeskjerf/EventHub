@@ -1,4 +1,4 @@
-FROM oven/bun:debian AS build
+FROM docker.io/oven/bun:debian AS build
 ARG VITE_API_BASE_URL=/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG REGISTRATION_ENABLED=false
@@ -13,7 +13,7 @@ COPY . .
 
 RUN bun run build-only
 
-FROM nginx:alpine as production
+FROM docker.io/nginx:alpine as production
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
