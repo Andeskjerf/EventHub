@@ -10,7 +10,7 @@ services:
       - app-network
     environment:
       - REGISTRATION_ENABLED=true
-      - ANONYMIZE_PAST_DAYS=30
+      - ANONYMIZE_PAST_DAYS=7
       - DB_PATH=/app/data/database.db
       - DOMAIN=http://localhost:*
       - DEV=false
@@ -23,6 +23,7 @@ services:
       args:
         - REGISTRATION_ENABLED=true
         - VITE_API_BASE_URL=/api
+        - ANONYMIZE_PAST_DAYS=7
     ports:
       - "8282:80"
     depends_on:
