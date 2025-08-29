@@ -135,7 +135,7 @@ function toggleForm() {
       </form>
 
       <div v-if="REGISTRATION_ENABLED">
-        <div class="auth-toggle" v-if="showLogin">
+        <div class="auth-toggle">
           <p>
             {{ showLogin ? 'Har du ikke en konto?' : 'Har du allerede en konto?' }}
             <button @click="toggleForm" class="toggle-btn" :disabled="loading">

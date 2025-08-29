@@ -6,7 +6,7 @@ import { clearAuth, STORAGE_KEYS, setUsername } from "./storage";
 
 const API_ENDPOINT_BASE: string = "/auth";
 export const REGISTRATION_ENABLED: boolean =
-	import.meta.env.VITE_REGISTRATION_ENABLED ?? false;
+	import.meta.env.VITE_REGISTRATION_ENABLED == "true";
 
 export async function login(
 	username: string,
@@ -59,13 +59,11 @@ export async function register(
 }
 
 export async function logout() {
-	await apiClient
-		.get(API_ENDPOINT_BASE + "/logout")
-		.catch((e) => {
-			// TODO: need to handle this, notify the user or whatever
-			console.log(`E: failed to logout: ${e}`);
-			throw e.response.data;
-		});
+	await apiClient.get(API_ENDPOINT_BASE + "/logout").catch((e) => {
+		// TODO: need to handle this, notify the user or whatever
+		console.log(`E: failed to logout: ${e}`);
+		throw e.response.data;
+	});
 
 	clearAuth();
 	userModule.actions.updateAuthState();
