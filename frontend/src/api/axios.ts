@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logout } from "@/services/authentication";
 import { clearAuth } from "@/services/storage";
 import { userModule } from "@/stores/auth/module";
 
@@ -13,8 +14,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
 	(response) => response,
-	(error) => {
+	async (error) => {
 		if (error.response?.status === 401) {
+			await logout();
 			clearAuth();
 			userModule.actions.updateAuthState();
 		}
