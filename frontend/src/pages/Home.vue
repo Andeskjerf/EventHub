@@ -16,10 +16,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h1 v-if="loading"></h1>
   <div v-if="!loading && activities.length == 0" class="background text-align-center">
     Ingen aktiviteter er lagt til
   </div>
+  <h1 v-if="loading"></h1>
   <div v-else id="activityContainer">
     <ActivityCard v-for="activity in activities" :activity="activity" />
   </div>
