@@ -1,5 +1,4 @@
 import { apiClient } from "@/api/axios";
-import { BACKEND_URL } from "@/consts/backend";
 import type { LoginCreds } from "@/models/login_creds";
 import type { RegisterRequest } from "@/models/register_request";
 import { userModule } from "@/stores/auth/module";
@@ -19,7 +18,7 @@ export async function login(
 	};
 
 	const response = await apiClient
-		.post(BACKEND_URL + API_ENDPOINT_BASE + "/login", creds)
+		.post(API_ENDPOINT_BASE + "/login", creds)
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to login: ${e}`);
@@ -45,7 +44,7 @@ export async function register(
 	};
 
 	const response = await apiClient
-		.post(BACKEND_URL + API_ENDPOINT_BASE + "/register", creds)
+		.post(API_ENDPOINT_BASE + "/register", creds)
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to register: ${e}`);
@@ -61,7 +60,7 @@ export async function register(
 
 export async function logout() {
 	await apiClient
-		.get(BACKEND_URL + API_ENDPOINT_BASE + "/logout")
+		.get(API_ENDPOINT_BASE + "/logout")
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever
 			console.log(`E: failed to logout: ${e}`);
