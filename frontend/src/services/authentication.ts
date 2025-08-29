@@ -4,7 +4,7 @@ import type { RegisterRequest } from "@/models/register_request";
 import { userModule } from "@/stores/auth/module";
 import { clearAuth, STORAGE_KEYS, setUsername } from "./storage";
 
-const API_ENDPOINT_BASE: string = "/api/auth";
+const API_ENDPOINT_BASE: string = "/auth";
 export const REGISTRATION_ENABLED: boolean =
 	import.meta.env.VITE_REGISTRATION_ENABLED ?? false;
 
