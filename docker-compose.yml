@@ -12,6 +12,7 @@ services:
       - REGISTRATION_ENABLED=true
       - ANONYMIZE_PAST_DAYS=30
       - DB_PATH=/app/data/database.db
+      - DOMAIN=http://localhost:*
       - DEV=false
     volumes:
       - sqlite_data:/app/data
