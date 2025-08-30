@@ -12,15 +12,20 @@ export const apiClient = axios.create({
 	},
 });
 
+let refreshAttempt = false;
+
 apiClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		if (error.response?.status === 401) {
-			const response = await apiClient.post("/auth/refresh");
-			if (response.status != 200) {
+			if (!refreshAttempt) {
+				refreshAttempt = true;
+				await apiClient.post("/auth/refresh");
+			} else {
 				await logout();
 				clearAuth();
 				userModule.actions.updateAuthState();
+				refreshAttempt = false;
 			}
 		}
 		return Promise.reject(error);
