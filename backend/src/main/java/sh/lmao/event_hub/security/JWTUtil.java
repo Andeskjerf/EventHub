@@ -35,7 +35,7 @@ public class JWTUtil {
     @Value("${jwt.private.key}")
     RSAPrivateKey priv;
 
-    public static long tokenExpiration = 36000L;
+    public static long tokenExpiration = 300L;
 
     public String generateToken(String username) {
         Instant now = Instant.now();
@@ -61,6 +61,7 @@ public class JWTUtil {
             return true;
         } catch (BadJwtException e) {
             logger.warn("failed to verify JWT token signature. this is most likely due to new RSA keys.");
+            logger.warn(e.toString());
             return false;
         } catch (Exception e) {
             logger.error("got an unknown error while checking JWT token validity!");

@@ -1,9 +1,11 @@
 package sh.lmao.event_hub.services;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import jakarta.servlet.http.Cookie;
 import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
+import sh.lmao.event_hub.exceptions.NotFoundException;
+import sh.lmao.event_hub.exceptions.TokenExpiredException;
 import sh.lmao.event_hub.models.LoginCreds;
 import sh.lmao.event_hub.repositories.RefreshTokenRepo;
 import sh.lmao.event_hub.repositories.UserRepo;
@@ -40,6 +44,9 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JWTUtil jwtUtil;
+
     public User registerUser(User user) throws AlreadyExistsException {
         if (userRepo.findByUsername(user.getUsername()).isPresent()
                 || userRepo.findByEmail(user.getEmail()).isPresent()) {
@@ -58,12 +65,32 @@ public class AuthService {
     }
 
     public void logout(Optional<String> refreshToken) throws AuthenticationException {
-        logger.info(refreshToken.toString());
         if (refreshToken.isPresent()) {
-            refreshTokenService.revokeToken(refreshToken.get());
+            refreshTokenService.deleteToken(refreshToken.get());
         } else {
             logger.warn("no refresh token was provided, unable to revoke.");
         }
+    }
+
+    public Map<String, String> refreshToken(Cookie[] cookies)
+            throws NotFoundException, TokenExpiredException {
+        String token = refreshTokenService.extractTokenFromCookies(cookies)
+                .orElseThrow(() -> new NotFoundException("no refresh token in request"));
+
+        RefreshToken rt = refreshTokenService.getToken(token)
+                .orElseThrow(() -> new NotFoundException("refresh token does not exist"));
+
+        if (rt.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenService.deleteToken(rt.getToken());
+            throw new TokenExpiredException();
+        }
+
+        rt.setExpiresAt(LocalDateTime.now().plusDays(refreshTokenService.expireInDays));
+        refreshTokenService.saveToken(rt);
+
+        User user = rt.getUser();
+        String jwtToken = jwtUtil.generateToken(user.getUsername());
+        return Map.of("jwt", jwtToken, "refresh", rt.getToken());
     }
 
     public Cookie createCookie(String token) {

@@ -16,9 +16,12 @@ apiClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		if (error.response?.status === 401) {
-			await logout();
-			clearAuth();
-			userModule.actions.updateAuthState();
+			const response = await apiClient.post("/auth/refresh");
+			if (response.status != 200) {
+				await logout();
+				clearAuth();
+				userModule.actions.updateAuthState();
+			}
 		}
 		return Promise.reject(error);
 	},

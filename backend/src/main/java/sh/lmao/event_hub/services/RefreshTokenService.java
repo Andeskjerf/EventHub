@@ -14,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.exceptions.NotFoundException;
+import sh.lmao.event_hub.exceptions.TokenExpiredException;
 import sh.lmao.event_hub.repositories.RefreshTokenRepo;
 import sh.lmao.event_hub.repositories.UserRepo;
 
@@ -47,15 +48,24 @@ public class RefreshTokenService {
         return refreshTokenRepo.save(token);
     }
 
+    public RefreshToken saveToken(RefreshToken refreshToken) {
+        return refreshTokenRepo.save(refreshToken);
+    }
+
     @Transactional
-    public void revokeToken(String token) {
+    public void deleteToken(String token) {
         refreshTokenRepo.deleteByToken(token);
     }
 
     @Transactional
-    public void revokeTokensForUser(UUID userId) {
+    public void deleteTokensForUser(UUID userId) {
         refreshTokenRepo.deleteByUserId(userId);
     }
+
+    public Optional<RefreshToken> getToken(String token) {
+        return refreshTokenRepo.findByToken(token);
+    }
+
 
     public Cookie createCookie(String token) {
         Cookie refreshCookie = new Cookie(refreshTokenKey, token);

@@ -1,8 +1,10 @@
 package sh.lmao.event_hub.controllers;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
+import sh.lmao.event_hub.exceptions.NotFoundException;
+import sh.lmao.event_hub.exceptions.TokenExpiredException;
 import sh.lmao.event_hub.models.LoginCreds;
 import sh.lmao.event_hub.security.JWTUtil;
 import sh.lmao.event_hub.services.AuthService;
@@ -92,6 +96,28 @@ public class AuthController {
             logger.error(e.toString());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "login failed for unknown reason"));
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refreshHandler(HttpServletRequest request,
+            HttpServletResponse response) {
+        try {
+            Map<String, String> result = authService.refreshToken(request.getCookies());
+            response.addCookie(refreshTokenService.createCookie(result.get("refresh")));
+            response.addCookie(authService.createCookie(result.get("jwt")));
+
+            return ResponseEntity.ok(Map.of("message", "tokens refreshed successfully"));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "refresh token is expired"));
+        } catch (Exception e) {
+            logger.error("Error refreshing tokens", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "failed to refresh tokens"));
         }
     }
 
