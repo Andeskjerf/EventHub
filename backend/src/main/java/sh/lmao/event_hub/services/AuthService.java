@@ -1,8 +1,11 @@
 package sh.lmao.event_hub.services;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,14 +26,13 @@ import sh.lmao.event_hub.security.JWTUtil;
 @Service
 public class AuthService {
 
-    @Value("${DEV:true}")
-    private boolean isDevEnvironment;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private UserRepo userRepo;
 
     @Autowired
-    private RefreshTokenRepo refreshTokenRepo;
+    private RefreshTokenService refreshTokenService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -55,10 +57,15 @@ public class AuthService {
         authenticationManager.authenticate(authInputToken);
     }
 
-    public Cookie logout() throws AuthenticationException {
+    public Cookie logout(Optional<String> refreshToken) throws AuthenticationException {
         // we log the user out by giving them an expired jwt-token cookie
         // in the future, we might want session & refresh tokens
         // when we get there, this should also invalidate the refresh token
+        if (refreshToken.isPresent()) {
+            refreshTokenService.revokeToken(refreshToken.get());
+        } else {
+            logger.warn("no refresh token was provided, unable to revoke. returning empty jwt token anyway");
+        }
         return createCookie("");
     }
 
@@ -66,16 +73,8 @@ public class AuthService {
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
-        jwtCookie.setSecure(!isDevEnvironment);
+        jwtCookie.setSecure(true);
         jwtCookie.setMaxAge(token.length() != 0 ? (int) JWTUtil.tokenExpiration : 0);
         return jwtCookie;
-    }
-
-    private RefreshToken createRefreshToken(UUID userId) {
-        RefreshToken token = new RefreshToken();
-        token.setToken(UUID.randomUUID().toString());
-        token.setUser(userRepo.getReferenceById(userId));
-        token.setExpiresAt(LocalDateTime.now().plusDays(7));
-        return refreshTokenRepo.save(token);
     }
 }

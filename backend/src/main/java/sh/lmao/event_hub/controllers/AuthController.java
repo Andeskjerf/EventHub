@@ -1,6 +1,7 @@
 package sh.lmao.event_hub.controllers;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.models.LoginCreds;
 import sh.lmao.event_hub.security.JWTUtil;
 import sh.lmao.event_hub.services.AuthService;
+import sh.lmao.event_hub.services.RefreshTokenService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,6 +40,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerHandler(
@@ -85,8 +92,9 @@ public class AuthController {
 
     @GetMapping("/logout")
     public Map<String, Object> logoutHandler(
+            HttpServletRequest request,
             HttpServletResponse response) {
-        response.addCookie(authService.logout());
+        response.addCookie(authService.logout(refreshTokenService.extractTokenFromCookies(request.getCookies())));
         return Map.of("message", "logout successful");
     }
 }

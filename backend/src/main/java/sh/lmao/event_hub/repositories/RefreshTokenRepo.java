@@ -11,4 +11,8 @@ import sh.lmao.event_hub.entities.RefreshToken;
 @Repository
 public interface RefreshTokenRepo extends JpaRepository<RefreshToken, UUID> {
     Optional<RefreshToken> findByToken(String token);
+
+    void deleteByToken(String token);
+
+    void deleteByUserId(UUID userId);
 }
