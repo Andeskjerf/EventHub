@@ -1,5 +1,13 @@
 package sh.lmao.event_hub.services;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -7,25 +15,29 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.Cookie;
+import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.exceptions.AlreadyExistsException;
+import sh.lmao.event_hub.exceptions.NotFoundException;
+import sh.lmao.event_hub.exceptions.TokenExpiredException;
 import sh.lmao.event_hub.models.LoginCreds;
+import sh.lmao.event_hub.repositories.RefreshTokenRepo;
 import sh.lmao.event_hub.repositories.UserRepo;
 import sh.lmao.event_hub.security.JWTUtil;
 
 @Service
 public class AuthService {
 
-    @Value("${DEV:true}")
-    private boolean isDevEnvironment;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private UserRepo userRepo;
 
     @Autowired
-    private JWTUtil jwtUtil;
+    private RefreshTokenService refreshTokenService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -33,7 +45,10 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String registerUser(User user) throws AlreadyExistsException {
+    @Autowired
+    private JWTUtil jwtUtil;
+
+    public User registerUser(User user) throws AlreadyExistsException {
         if (userRepo.findByUsername(user.getUsername()).isPresent()
                 || userRepo.findByEmail(user.getEmail()).isPresent()) {
             throw new AlreadyExistsException("user already exists");
@@ -41,31 +56,50 @@ public class AuthService {
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user = userRepo.save(user);
-
-        return jwtUtil.generateToken(user.getUsername());
+        return userRepo.save(user);
     }
 
-    public String loginUser(LoginCreds creds) throws AuthenticationException {
+    public void loginUser(LoginCreds creds) throws AuthenticationException {
         UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
                 creds.getUsername(), creds.getPassword());
         authenticationManager.authenticate(authInputToken);
-
-        return jwtUtil.generateToken(creds.getUsername());
     }
 
-    public Cookie logout() throws AuthenticationException {
-        // we log the user out by giving them an expired jwt-token cookie
-        // in the future, we might want session & refresh tokens
-        // when we get there, this should also invalidate the refresh token
-        return createCookie("");
+    public void logout(Optional<String> refreshToken) throws AuthenticationException {
+        if (refreshToken.isPresent()) {
+            refreshTokenService.deleteToken(refreshToken.get());
+        } else {
+            logger.warn("no refresh token was provided, unable to revoke.");
+        }
+    }
+
+    @Transactional
+    public Map<String, String> refreshToken(Cookie[] cookies)
+            throws NotFoundException, TokenExpiredException {
+        String token = refreshTokenService.extractTokenFromCookies(cookies)
+                .orElseThrow(() -> new NotFoundException("no refresh token in request"));
+
+        RefreshToken rt = refreshTokenService.getToken(token)
+                .orElseThrow(() -> new NotFoundException("refresh token does not exist"));
+
+        if (rt.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenService.deleteToken(rt.getToken());
+            throw new TokenExpiredException();
+        }
+
+        User user = rt.getUser();
+        RefreshToken newRt = refreshTokenService.createToken(user.getId());
+        refreshTokenService.deleteToken(rt.getToken());
+
+        String jwtToken = jwtUtil.generateToken(user.getUsername());
+        return Map.of("jwt", jwtToken, "refresh", newRt.getToken());
     }
 
     public Cookie createCookie(String token) {
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
-        jwtCookie.setSecure(!isDevEnvironment);
+        jwtCookie.setSecure(true);
         jwtCookie.setMaxAge(token.length() != 0 ? (int) JWTUtil.tokenExpiration : 0);
         return jwtCookie;
     }
