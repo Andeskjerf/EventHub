@@ -175,7 +175,8 @@ function setId(instanceId: string) {
       <button type="submit" :disabled="name.length == 0" class="submit-btn">
         Meld meg på
       </button>
-      <div id="disclaimer">Ved påmelding godtar du at navn og telefonnummer lagres i opptil {{ daysToAnonymize }}
+      <div id="disclaimer">Ved påmelding godtar du at navn og eventuelt telefonnummer lagres i opptil {{ daysToAnonymize
+        }}
         dag(er) etter påmelding.
         Opplysningene
         lagres i et datasenter innenfor EU.</div>
