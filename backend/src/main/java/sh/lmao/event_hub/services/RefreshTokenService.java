@@ -38,7 +38,7 @@ public class RefreshTokenService {
 
     @Scheduled(fixedRate = 6, timeUnit = TimeUnit.HOURS)
     @Transactional
-    private void cleanupExpiredTokens() {
+    public void cleanupExpiredTokens() {
         int count = refreshTokenRepo.deleteByExpiresAtBefore(LocalDateTime.now());
         if (count > 0) {
             logger.info("cleaned up {} expired refresh tokens", count);
