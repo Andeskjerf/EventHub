@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - app-network
+    environment:
+      - REGISTRATION_ENABLED=true
+      - ANONYMIZE_PAST_DAYS=7
+      - DB_PATH=/app/data/database.db
+      - DOMAIN=http://localhost:*
+      - DEV=false
+    volumes:
+      - sqlite_data:/app/data
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REGISTRATION_ENABLED=true
+        - VITE_API_BASE_URL=/api
+        - ANONYMIZE_PAST_DAYS=7
+    ports:
+      - "8282:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+volumes:
+  sqlite_data:
+networks:
+  app-network:
+    driver: bridge
