@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.Cookie;
 import sh.lmao.event_hub.entities.RefreshToken;
@@ -72,6 +73,7 @@ public class AuthService {
         }
     }
 
+    @Transactional
     public Map<String, String> refreshToken(Cookie[] cookies)
             throws NotFoundException, TokenExpiredException {
         String token = refreshTokenService.extractTokenFromCookies(cookies)
@@ -86,8 +88,8 @@ public class AuthService {
         }
 
         User user = rt.getUser();
-        refreshTokenService.deleteToken(rt.getToken());
         RefreshToken newRt = refreshTokenService.createToken(user.getId());
+        refreshTokenService.deleteToken(rt.getToken());
 
         String jwtToken = jwtUtil.generateToken(user.getUsername());
         return Map.of("jwt", jwtToken, "refresh", newRt.getToken());
