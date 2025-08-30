@@ -1,12 +1,15 @@
 package sh.lmao.event_hub.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +36,14 @@ public class RefreshTokenService {
     @Autowired
     private RefreshTokenRepo refreshTokenRepo;
 
-    // TODO: scheduled deletion of expired tokens
+    @Scheduled(fixedRate = 6, timeUnit = TimeUnit.HOURS)
+    @Transactional
+    private void cleanupExpiredTokens() {
+        int count = refreshTokenRepo.deleteByExpiresAtBefore(LocalDateTime.now());
+        if (count > 0) {
+            logger.info("cleaned up {} expired refresh tokens", count);
+        }
+    }
 
     public RefreshToken createTokenFromUsername(String username) throws Exception {
         User user = userRepo.findByUsername(username).orElseThrow();
@@ -65,7 +75,6 @@ public class RefreshTokenService {
     public Optional<RefreshToken> getToken(String token) {
         return refreshTokenRepo.findByToken(token);
     }
-
 
     public Cookie createCookie(String token) {
         Cookie refreshCookie = new Cookie(refreshTokenKey, token);

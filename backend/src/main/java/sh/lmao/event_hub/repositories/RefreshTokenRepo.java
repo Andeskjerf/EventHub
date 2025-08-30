@@ -1,5 +1,6 @@
 package sh.lmao.event_hub.repositories;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import sh.lmao.event_hub.entities.RefreshToken;
 @Repository
 public interface RefreshTokenRepo extends JpaRepository<RefreshToken, UUID> {
     Optional<RefreshToken> findByToken(String token);
+
+    int deleteByExpiresAtBefore(LocalDateTime time);
 
     void deleteByToken(String token);
 
