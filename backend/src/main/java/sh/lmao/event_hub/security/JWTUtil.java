@@ -1,39 +1,30 @@
 package sh.lmao.event_hub.security;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.stereotype.Component;
-
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
 
 @Component
 public class JWTUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JWTUtil.class);
 
-    @Value("${jwt.public.key}")
-    RSAPublicKey key;
+    @Autowired
+    private JwtEncoder jwtEncoder;
 
-    @Value("${jwt.private.key}")
-    RSAPrivateKey priv;
+    @Autowired
+    private JwtDecoder jwtDecoder;
+
+    @Autowired
+    JWTProvider jwtProvider;
 
     public static long tokenExpiration = 300L;
 
@@ -49,15 +40,16 @@ public class JWTUtil {
                 .subject(username)
                 .claim("scope", "app")
                 .build();
-        return jwtEncoder().encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
     }
 
     public boolean isJwtTokenValid(String token) {
         // we check the validity by the token by simply trying to decode it
         // it'll fail with a signature error if it's invalid
+        logger.info("validating token with public key hash: {}", jwtProvider.key.hashCode());
         try {
-            jwtDecoder().decode(token);
+            jwtDecoder.decode(token);
             return true;
         } catch (BadJwtException e) {
             logger.warn("failed to verify JWT token signature. this is most likely due to new RSA keys.");
@@ -68,17 +60,5 @@ public class JWTUtil {
             logger.error(e.toString());
             return false;
         }
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(this.key).build();
-    }
-
-    @Bean
-    JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-        return new NimbusJwtEncoder(jwks);
     }
 }
