@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +22,9 @@ import sh.lmao.event_hub.security.JWTUtil;
 
 @Service
 public class AuthService {
+
+    @Value("${DEV:true}")
+    private boolean isDevEnvironment;
 
     @Autowired
     private UserRepo userRepo;
@@ -69,7 +73,7 @@ public class AuthService {
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
-        jwtCookie.setSecure(false); // FIXME: set to true when in production!
+        jwtCookie.setSecure(!isDevEnvironment);
         jwtCookie.setMaxAge(token.length() != 0 ? (int) JWTUtil.tokenExpiration : 0);
         return jwtCookie;
     }

@@ -14,6 +14,8 @@ import { faGhost } from '@fortawesome/free-solid-svg-icons';
 const route = useRoute()
 const router = useRouter()
 
+const daysToAnonymize = import.meta.env.VITE_ANONYMIZE_PAST_DAYS || 7
+
 const id = ref()
 const activity = ref()
 const nextActivity = ref()
@@ -157,7 +159,7 @@ function setId(instanceId: string) {
 
       <div class="form-group">
         <label for="phone">Telefon</label>
-        <input id="phone" v-model="phone" type="tel" />
+        <input id="phone" v-model="phone" type="tel" placeholder="Valgfritt" />
       </div>
 
       <div v-if="activity.options && activity.options.length > 0" class="options-group">
@@ -173,6 +175,11 @@ function setId(instanceId: string) {
       <button type="submit" :disabled="name.length == 0" class="submit-btn">
         Meld meg på
       </button>
+      <div id="disclaimer">Ved påmelding godtar du at navn og eventuelt telefonnummer lagres i opptil {{ daysToAnonymize
+        }}
+        dag(er) etter påmelding.
+        Opplysningene
+        lagres i et datasenter innenfor EU.</div>
     </form>
 
     <div v-if="participants.length > 0" class="participants-section">
@@ -510,5 +517,17 @@ function setId(instanceId: string) {
     align-items: flex-start;
     gap: 8px;
   }
+}
+
+#disclaimer {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #6c757d;
+  text-align: left;
 }
 </style>
