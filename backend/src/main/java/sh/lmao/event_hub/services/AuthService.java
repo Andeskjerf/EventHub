@@ -57,16 +57,13 @@ public class AuthService {
         authenticationManager.authenticate(authInputToken);
     }
 
-    public Cookie logout(Optional<String> refreshToken) throws AuthenticationException {
-        // we log the user out by giving them an expired jwt-token cookie
-        // in the future, we might want session & refresh tokens
-        // when we get there, this should also invalidate the refresh token
+    public void logout(Optional<String> refreshToken) throws AuthenticationException {
+        logger.info(refreshToken.toString());
         if (refreshToken.isPresent()) {
             refreshTokenService.revokeToken(refreshToken.get());
         } else {
-            logger.warn("no refresh token was provided, unable to revoke. returning empty jwt token anyway");
+            logger.warn("no refresh token was provided, unable to revoke.");
         }
-        return createCookie("");
     }
 
     public Cookie createCookie(String token) {

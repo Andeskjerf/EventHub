@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import sh.lmao.event_hub.entities.RefreshToken;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.models.LoginCreds;
 import sh.lmao.event_hub.security.JWTUtil;
@@ -58,8 +59,10 @@ public class AuthController {
             // token
             // easier to just do it here
             user = authService.registerUser(user);
-            String token = jwtUtil.generateToken(user.getUsername());
-            response.addCookie(authService.createCookie(token));
+            String jwtToken = jwtUtil.generateToken(user.getUsername());
+            RefreshToken refreshToken = refreshTokenService.createToken(user.getId());
+            response.addCookie(authService.createCookie(jwtToken));
+            response.addCookie(refreshTokenService.createCookie(refreshToken.getToken()));
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "registration successful", "username", user.getUsername()));
@@ -76,6 +79,8 @@ public class AuthController {
             // it'll throw an exception if it fails so maybe not?
             authService.loginUser(body);
             String token = jwtUtil.generateToken(body.getUsername());
+            RefreshToken refreshToken = refreshTokenService.createTokenFromUsername(body.getUsername());
+            response.addCookie(refreshTokenService.createCookie(refreshToken.getToken()));
             response.addCookie(authService.createCookie(token));
 
             return ResponseEntity.status(HttpStatus.OK)
@@ -94,7 +99,9 @@ public class AuthController {
     public Map<String, Object> logoutHandler(
             HttpServletRequest request,
             HttpServletResponse response) {
-        response.addCookie(authService.logout(refreshTokenService.extractTokenFromCookies(request.getCookies())));
+        authService.logout(refreshTokenService.extractTokenFromCookies(request.getCookies()));
+        response.addCookie(refreshTokenService.createCookie(""));
+        response.addCookie(authService.createCookie(""));
         return Map.of("message", "logout successful");
     }
 }
