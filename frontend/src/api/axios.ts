@@ -12,13 +12,21 @@ export const apiClient = axios.create({
 	},
 });
 
+let refreshAttempt = false;
+
 apiClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		if (error.response?.status === 401) {
-			await logout();
-			clearAuth();
-			userModule.actions.updateAuthState();
+			if (!refreshAttempt) {
+				refreshAttempt = true;
+				await apiClient.post("/auth/refresh");
+			} else if (refreshAttempt && userModule.state.isAuthenticated) {
+				await logout();
+				clearAuth();
+				userModule.actions.updateAuthState();
+			}
+			refreshAttempt = false;
 		}
 		return Promise.reject(error);
 	},
