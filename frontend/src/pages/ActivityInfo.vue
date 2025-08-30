@@ -159,7 +159,7 @@ function setId(instanceId: string) {
 
       <div class="form-group">
         <label for="phone">Telefon</label>
-        <input id="phone" v-model="phone" type="tel" />
+        <input id="phone" v-model="phone" type="tel" placeholder="Valgfritt" />
       </div>
 
       <div v-if="activity.options && activity.options.length > 0" class="options-group">
