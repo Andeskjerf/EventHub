@@ -86,6 +86,10 @@ public class RefreshTokenService {
     }
 
     public Optional<String> extractTokenFromCookies(Cookie[] cookies) {
+        if (cookies == null) {
+            logger.error("no cookies were provided, no refresh token to extract");
+            return Optional.empty();
+        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(refreshTokenKey)) {
                 return Optional.of(cookie.getValue());
