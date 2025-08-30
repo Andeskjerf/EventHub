@@ -30,9 +30,6 @@ public class JWTUtil {
 
     public String generateToken(String username) {
         Instant now = Instant.now();
-        // String scope = authentication.getAuthorities().stream()
-        // .map(GrantedAuthority::getAuthority)
-        // .collect(Collectors.joining(" "));
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
@@ -47,17 +44,16 @@ public class JWTUtil {
     public boolean isJwtTokenValid(String token) {
         // we check the validity by the token by simply trying to decode it
         // it'll fail with a signature error if it's invalid
-        logger.info("validating token with public key hash: {}", jwtProvider.key.hashCode());
         try {
             jwtDecoder.decode(token);
             return true;
         } catch (BadJwtException e) {
-            logger.warn("failed to verify JWT token signature. this is most likely due to new RSA keys.");
-            logger.warn(e.toString());
+            logger.warn("failed to verify JWT token signature.");
+            logger.warn(e.getMessage());
             return false;
         } catch (Exception e) {
             logger.error("got an unknown error while checking JWT token validity!");
-            logger.error(e.toString());
+            logger.error(e.getMessage());
             return false;
         }
     }
