@@ -85,12 +85,12 @@ public class AuthService {
             throw new TokenExpiredException();
         }
 
-        rt.setExpiresAt(LocalDateTime.now().plusDays(refreshTokenService.expireInDays));
-        refreshTokenService.saveToken(rt);
-
         User user = rt.getUser();
+        refreshTokenService.deleteToken(rt.getToken());
+        RefreshToken newRt = refreshTokenService.createToken(user.getId());
+
         String jwtToken = jwtUtil.generateToken(user.getUsername());
-        return Map.of("jwt", jwtToken, "refresh", rt.getToken());
+        return Map.of("jwt", jwtToken, "refresh", newRt.getToken());
     }
 
     public Cookie createCookie(String token) {
