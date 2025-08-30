@@ -21,12 +21,12 @@ apiClient.interceptors.response.use(
 			if (!refreshAttempt) {
 				refreshAttempt = true;
 				await apiClient.post("/auth/refresh");
-			} else {
+			} else if (refreshAttempt && userModule.state.isAuthenticated) {
 				await logout();
 				clearAuth();
 				userModule.actions.updateAuthState();
-				refreshAttempt = false;
 			}
+			refreshAttempt = false;
 		}
 		return Promise.reject(error);
 	},
