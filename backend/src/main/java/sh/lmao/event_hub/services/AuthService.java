@@ -33,9 +33,6 @@ public class AuthService {
     private RefreshTokenRepo refreshTokenRepo;
 
     @Autowired
-    private JWTUtil jwtUtil;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -49,17 +46,13 @@ public class AuthService {
 
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user = userRepo.save(user);
-
-        return jwtUtil.generateToken(user.getUsername());
+        return userRepo.save(user);
     }
 
-    public User loginUser(LoginCreds creds) throws AuthenticationException {
+    public void loginUser(LoginCreds creds) throws AuthenticationException {
         UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
                 creds.getUsername(), creds.getPassword());
         authenticationManager.authenticate(authInputToken);
-
-        return jwtUtil.generateToken(creds.getUsername());
     }
 
     public Cookie logout() throws AuthenticationException {

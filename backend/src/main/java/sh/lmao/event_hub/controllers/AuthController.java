@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import sh.lmao.event_hub.entities.User;
 import sh.lmao.event_hub.models.LoginCreds;
+import sh.lmao.event_hub.security.JWTUtil;
 import sh.lmao.event_hub.services.AuthService;
 
 @RestController
@@ -29,6 +30,9 @@ public class AuthController {
 
     @Value("${REGISTRATION_ENABLED:false}")
     private boolean registrationEnabled;
+
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Autowired
     private AuthService authService;
@@ -42,7 +46,12 @@ public class AuthController {
         }
 
         try {
-            String token = authService.registerUser(user);
+            // FIXME: should the controller orchestrate this?
+            // seems like a lot of boilerplate if all we need is to get token & refresh
+            // token
+            // easier to just do it here
+            user = authService.registerUser(user);
+            String token = jwtUtil.generateToken(user.getUsername());
             response.addCookie(authService.createCookie(token));
 
             return ResponseEntity.status(HttpStatus.OK)
@@ -56,7 +65,10 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> loginHandler(
             @RequestBody LoginCreds body, HttpServletResponse response) {
         try {
-            String token = authService.loginUser(body);
+            // ...should we be returning something?
+            // it'll throw an exception if it fails so maybe not?
+            authService.loginUser(body);
+            String token = jwtUtil.generateToken(body.getUsername());
             response.addCookie(authService.createCookie(token));
 
             return ResponseEntity.status(HttpStatus.OK)
