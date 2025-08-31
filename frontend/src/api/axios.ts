@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 import { logout } from "@/services/authentication";
 import { clearAuth } from "@/services/storage";
 import { userModule } from "@/stores/auth/module";
@@ -11,11 +11,12 @@ export const apiClient = axios.create({
 		"Content-Type": "application/json",
 	},
 });
-let refreshAttempt = false;
+
+let refreshPromise: Promise<AxiosResponse<any, any>> | null = null;
 
 apiClient.interceptors.response.use(
 	(response) => {
-		if (refreshAttempt) refreshAttempt = false;
+		if (refreshPromise) refreshPromise = null;
 		return response;
 	},
 	async (error) => {
@@ -24,24 +25,25 @@ apiClient.interceptors.response.use(
 		if (error.response?.status === 401 && !originalRequest._retry) {
 			originalRequest._retry = true;
 
-			if (!refreshAttempt) {
-				refreshAttempt = true;
-				try {
-					await apiClient.post("/auth/refresh");
-					return apiClient(originalRequest);
-				} catch (refreshError) {
-					refreshAttempt = false;
-					if (userModule.state.isAuthenticated) {
-						await logout();
-						clearAuth();
-						userModule.actions.updateAuthState();
-					}
-					return Promise.reject(refreshError);
-				}
-			} else if (refreshAttempt && userModule.state.isAuthenticated) {
-				await logout();
-				clearAuth();
-				userModule.actions.updateAuthState();
+			if (!refreshPromise) {
+				refreshPromise = apiClient
+					.post("/auth/refresh")
+					.catch(async (refreshError) => {
+						refreshPromise = null;
+						if (userModule.state.isAuthenticated) {
+							await logout();
+							clearAuth();
+							userModule.actions.updateAuthState();
+						}
+						throw refreshError;
+					});
+			}
+
+			try {
+				await refreshPromise;
+				return apiClient(originalRequest);
+			} catch (refreshError) {
+				return Promise.reject(refreshError);
 			}
 		}
 
