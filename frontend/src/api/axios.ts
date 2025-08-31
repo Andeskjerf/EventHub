@@ -17,16 +17,27 @@ let refreshAttempt = false;
 apiClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
-		if (error.response?.status === 401) {
+		const originalRequest = error.config;
+		if (error.response?.status === 401 && !originalRequest._retry) {
+			originalRequest._retry = true;
+
 			if (!refreshAttempt) {
 				refreshAttempt = true;
-				await apiClient.post("/auth/refresh");
+				try {
+					await apiClient.post("/auth/refresh");
+					return apiClient(originalRequest);
+				} catch (refreshError) {
+					refreshAttempt = false;
+					await logout();
+					clearAuth();
+					userModule.actions.updateAuthState();
+					return Promise.reject(refreshError);
+				}
 			} else if (refreshAttempt && userModule.state.isAuthenticated) {
 				await logout();
 				clearAuth();
 				userModule.actions.updateAuthState();
 			}
-			refreshAttempt = false;
 		}
 		return Promise.reject(error);
 	},
