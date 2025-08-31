@@ -11,13 +11,16 @@ export const apiClient = axios.create({
 		"Content-Type": "application/json",
 	},
 });
-
 let refreshAttempt = false;
 
 apiClient.interceptors.response.use(
-	(response) => response,
+	(response) => {
+		if (refreshAttempt) refreshAttempt = false;
+		return response;
+	},
 	async (error) => {
 		const originalRequest = error.config;
+
 		if (error.response?.status === 401 && !originalRequest._retry) {
 			originalRequest._retry = true;
 
@@ -28,9 +31,11 @@ apiClient.interceptors.response.use(
 					return apiClient(originalRequest);
 				} catch (refreshError) {
 					refreshAttempt = false;
-					await logout();
-					clearAuth();
-					userModule.actions.updateAuthState();
+					if (userModule.state.isAuthenticated) {
+						await logout();
+						clearAuth();
+						userModule.actions.updateAuthState();
+					}
 					return Promise.reject(refreshError);
 				}
 			} else if (refreshAttempt && userModule.state.isAuthenticated) {
@@ -39,6 +44,7 @@ apiClient.interceptors.response.use(
 				userModule.actions.updateAuthState();
 			}
 		}
+
 		return Promise.reject(error);
 	},
 );
