@@ -1,4 +1,4 @@
-import { apiClient } from "@/api/axios";
+import { apiClient, apiClientNoRefresh } from "@/api/axios";
 import type { ActivityInstance } from "@/models/activity_instance";
 import type { CreateActivityRequest } from "@/models/create_activity_request";
 import type { CreateParticipant } from "@/models/create_participant";
@@ -40,7 +40,9 @@ export const activityService = {
 
 	async getNextActivityInfo(instanceId: string) {
 		try {
-			const response = await apiClient.get(`/activity/${instanceId}/next`);
+			const response = await apiClientNoRefresh.get(
+				`/activity/${instanceId}/next`,
+			);
 			return {
 				success: true,
 				data: response.data,
@@ -57,7 +59,9 @@ export const activityService = {
 
 	async getPreviousActivityInfo(instanceId: string) {
 		try {
-			const response = await apiClient.get(`/activity/${instanceId}/previous`);
+			const response = await apiClientNoRefresh.get(
+				`/activity/${instanceId}/previous`,
+			);
 			return {
 				success: true,
 				data: response.data,

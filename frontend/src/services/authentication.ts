@@ -1,4 +1,4 @@
-import { apiClient } from "@/api/axios";
+import { apiClient, apiClientNoRefresh } from "@/api/axios";
 import type { LoginCreds } from "@/models/login_creds";
 import type { RegisterRequest } from "@/models/register_request";
 import { userModule } from "@/stores/auth/module";
@@ -17,7 +17,7 @@ export async function login(
 		password,
 	};
 
-	const response = await apiClient
+	const response = await apiClientNoRefresh
 		.post(API_ENDPOINT_BASE + "/login", creds)
 		.catch((e) => {
 			// TODO: need to handle this, notify the user or whatever

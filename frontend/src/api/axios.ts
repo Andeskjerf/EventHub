@@ -12,6 +12,15 @@ export const apiClient = axios.create({
 	},
 });
 
+export const apiClientNoRefresh = axios.create({
+	baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8090/api",
+	withCredentials: true,
+	timeout: 10000,
+	headers: {
+		"Content-Type": "application/json",
+	},
+});
+
 let refreshPromise: Promise<AxiosResponse<any, any>> | null = null;
 
 apiClient.interceptors.response.use(
